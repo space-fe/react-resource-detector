@@ -13,18 +13,27 @@ const routeResourceDetector = (routeConfig) => {
 
     state = {}
 
-    processRouteItem = ({ type, regexp, select, detect, selector }, currLocation) => {
+    processRouteItem = async ({ type, regexp, select, detect }, currLocation) => {
       const { pathname, search } = currLocation
       const query = queryString.parse(search, { arrayFormat: 'comma' })
 
       const matchResult = pathname.match(regexp)
       const id = matchResult && matchResult[0]
 
-      id && select(id, matchResult, query)
+      if (!id) return
 
-      this.setState({
-        [type]: currLocation.pathname
-      })
+      const processFn = select || detect
+      const param = select ? id : pathname
+
+      try {
+        const resource = await processFn(param, matchResult, query)
+
+        this.setState({
+          [type]: resource
+        })
+      } catch (err) {
+        processFn(param, matchResult, query)
+      }
     }
 
     handleRouteChanged = (prevLocation, currLocation) => {
