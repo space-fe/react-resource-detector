@@ -3,14 +3,14 @@ A resource detector for React
 
 ## design
 route resource config:
-One of `select & detect` must be provided. If both are provided, detect will be used in priority.
+One of `select & detect` must be provided. If both are provided, select will be used in priority.
 ```javascript
 [
   {
-    type: 'service',
-    regexp: /service_categories\/\d\/services\/\d/i,
-    select: resourceId => resource, // Promise or not
-    detect: url => resource         // Promise or not
+    type: 'resource1',
+    regexp: /resource1\/\d/i,    // resource regexp
+    select: (resourceId, matchResult, query) => resource, // Promise or not
+    detect: (location, matchResult, query) => resource    // Promise or not
   }
 ]
 ```

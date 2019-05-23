@@ -173,6 +173,11 @@ react-is@^16.6.0, react-is@^16.7.0, react-is@^16.8.1:
   resolved "https://npm.garenanow.com/react-is/-/react-is-16.8.6.tgz#5bbc1e2d29141c9fbdfed456343fe2bc430a6a16"
   integrity sha512-aUk3bHfZ2bRSVFFbbeVS4i+lNPZr3/WM5jT2J5omUVV1zzcs1nAaf3l51ctA5FFvCRbhrH0bdAsRRQddFJZPtA==
 
+react-onroutechanged@^0.0.2:
+  version "0.0.2"
+  resolved "https://npm.garenanow.com/react-onroutechanged/-/react-onroutechanged-0.0.2.tgz#daf513220820982626b9b3d1ba0f60299bec4292"
+  integrity sha512-qNhZKKMMhxd7uLmtrp4HhB6cuWwP8l3YtivAgiTdFRNkxnFl3mJBIMfylS4zZ5DF8gwdcn6ALqF/Uxdn782XxA==
+
 react-router-dom@^5.0.0:
   version "5.0.0"
   resolved "https://npm.garenanow.com/react-router-dom/-/react-router-dom-5.0.0.tgz#542a9b86af269a37f0b87218c4c25ea8dcf0c073"
