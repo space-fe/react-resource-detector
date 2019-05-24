@@ -152,9 +152,9 @@ const routeConfig = [
     type: 'resource1',
     regexp: /resource1\/(\w)+/i,
     select: (id, matchResult, query) => {
-      console.log('第1个')
       return new Promise((resolve, reject) => {
         setTimeout(() => {
+          console.log('第1个')
           resolve({
             name: id,
             displayName: 'resouce1 display name'
@@ -167,9 +167,9 @@ const routeConfig = [
     type: 'resource3',
     regexp: /resource1\/(\w)+\/resource3\/(\w)+/i,
     select: (id, matchResult, query) => {
-      console.log('第2个')
       return new Promise((resolve, reject) => {
         setTimeout(() => {
+          console.log('第2个')
           resolve({
             name: id,
             displayName: 'resouce3 display name'
@@ -178,27 +178,27 @@ const routeConfig = [
       })
     }
   },
-  {
-    type: 'resource_cart',
-    regexp: /resource1\/cart\/resource3\/(\w)+/i,
-    select: (id, matchResult, query) => {
-      console.log('第3个')
-      return new Promise((resolve, reject) => {
-        setTimeout(() => {
-          resolve({
-            cart: {
-              name: 'resource1/cart',
-              displayName: 'cart'
-            },
-            wheelCart: {
-              name: id,
-              displayName: 'wheelCart'
-            }
-          })
-        }, 500)
-      })
-    }
-  }
+  // {
+  //   type: 'resource_cart',
+  //   regexp: /resource1\/cart\/resource3\/(\w)+/i,
+  //   select: (id, matchResult, query) => {
+  //     return new Promise((resolve, reject) => {
+  //       setTimeout(() => {
+  //         console.log('第3个')
+  //         resolve({
+  //           cart: {
+  //             name: 'resource1/cart',
+  //             displayName: 'cart'
+  //           },
+  //           wheelCart: {
+  //             name: id,
+  //             displayName: 'wheelCart'
+  //           }
+  //         })
+  //       }, 500)
+  //     })
+  //   }
+  // }
 ]
 
 function App() {
