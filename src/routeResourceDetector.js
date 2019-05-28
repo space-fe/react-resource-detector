@@ -5,65 +5,88 @@ import onRouteChangedHOC from 'react-onroutechanged'
 
 const { Provider, Consumer } = React.createContext()
 
-const routeResourceDetector = (routesConfig) => {
-  let prevCachedMap = new Map()
-  const currCachedMap = new Map()
+const routeResourceDetector = (routesConfig, routeChangeConfig = { mounted: true, onlyPathname: false }) => {
+  let prevCacheMap = new Map()
+  const currCacheMap = new Map()
 
   class RouteResourceProvider extends React.PureComponent {
     static propTypes = {
       children: PropTypes.node.isRequired
     }
 
-    __checkIfCachedExist = id => {
-      const prevCachedData = prevCachedMap.get(id)
+    __checkIfCacheExist = id => {
+      const prevCachedData = prevCacheMap.get(id)
 
       if (prevCachedData) {
-        currCachedMap.set(id, prevCachedData)
+        currCacheMap.set(id, prevCachedData)
         return true
       }
 
       return false
     }
 
-    __processRouteItem = ({ type, regexp, select, detect }, currLocation) => {
-      return new Promise(async (resolve, reject) => {
-        const { pathname, search } = currLocation
-        const query = queryString.parse(search, { arrayFormat: 'comma' })
+    __processParams = (regexp, currLocation) => {
+      const { pathname, search } = currLocation
+      const query = queryString.parse(search, { arrayFormat: 'comma' })
 
-        const matchResult = pathname.match(regexp)
+      if (typeof regexp === 'string') {
+        regexp = new RegExp(regexp)
+      }
+
+      const matchResult = pathname.match(regexp)
+
+      return {
+        query,
+        matchResult
+      }
+    }
+
+    __selectResource = ({ resourceType, regexp, select }, currLocation) => {
+      return new Promise(async (resolve, reject) => {
+        const { query, matchResult } = this.__processParams(regexp, currLocation)
         const id = matchResult && matchResult[0]
 
-        if (!id) {
-          this.setState({ [type]: undefined })
+        if (!id) this.setState({ [resourceType]: undefined })
+
+        if (!id || this.__checkIfCacheExist(id)) {
           resolve()
           return
         }
 
-        if (this.__checkIfCachedExist(id)) {
-          resolve()
-          return
+        const resource = await select(id, matchResult, query)
+        currCacheMap.set(id, resource)
+        this.setState({ [resourceType]: resource })
+
+        resolve(resource)
+      })
+    }
+
+    __detectResource = ({ regexp, detect }, currLocation) => {
+      return new Promise(async (resolve, reject) => {
+        if (!detect || typeof detect !== 'function') {
+          reject(new Error('detect function must be provided!'))
         }
 
-        const processFn = select || detect
-        const param = select ? id : currLocation
+        const { query, matchResult } = this.__processParams(regexp, currLocation)
 
-        const resource = await processFn(param, matchResult, query)
-        currCachedMap.set(id, resource)
-        this.setState({ [type]: resource })
+        if (matchResult && matchResult[0]) {
+          await detect(currLocation, matchResult, query)
+        }
 
         resolve()
       })
     }
 
     handleRouteChanged = async (_, currLocation) => {
-      currCachedMap.clear()
+      currCacheMap.clear()
 
       const promises = routesConfig.map(item => {
-        return this.__processRouteItem(item, currLocation)
+        const { resourceType } = item
+        return resourceType ? this.__selectResource(item, currLocation) : this.__detectResource(item, currLocation)
       })
       await Promise.all(promises)
 
-      prevCachedMap = new Map(currCachedMap)
+      prevCacheMap = new Map(currCacheMap)
     }
 
     render () {
@@ -75,7 +98,7 @@ const routeResourceDetector = (routesConfig) => {
     }
   }
 
-  return onRouteChangedHOC(RouteResourceProvider, { mounted: true, onlyPathname: false })
+  return onRouteChangedHOC(RouteResourceProvider, routeChangeConfig)
 }
 
 routeResourceDetector.RouteResourceConsumer = Consumer

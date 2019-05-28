@@ -1,102 +1,143 @@
-import { routeResourceDetector } from '../src/index'
 import React from 'react'
-import { mount } from 'enzyme'
+import { BrowserRouter as Router } from 'react-router-dom'
+import { routeResourceDetector } from '../src/index'
+import cases from 'jest-in-case'
 
-const routesConfig = [
-  {
-    type: 'resource1',
-    regexp: /resource1\/(\w)+/i,
-    select: () => {}
-  },
-  {
-    type: 'resource2',
-    regexp: /resource1\/(\w)+\/resource2\/(\w)+/i,
-    select: () => {}
+const getLocation = (pathname, search, hash) => ({ pathname, search, hash })
+const l1 = getLocation('/resource1/bus')
+const l2 = getLocation('/resource1/bus/resource2/four_wheel')
+const l3 = getLocation('/resource3/bus/resource4/four_wheel')
+
+cases('test', opts => {
+  const {
+    routesConfig,
+    configCallTimes,
+    errors,
+    callHandleRouteChanged,
+    callHandleRouteChangedParams = []
+  } = opts
+
+  const RouteResourceProvider = routeResourceDetector(routesConfig)
+  const RouteResourceConsumer = routeResourceDetector.RouteResourceConsumer
+
+  class Component extends React.Component {
+    pRef = null
+
+    render () {
+      return (
+        <Router>
+          <RouteResourceProvider
+            ref={ref => this.pRef = ref}
+            location={l1}
+          >
+            <div>test</div>
+          </RouteResourceProvider>
+        </Router>
+      )
+    }
   }
-]
 
-const locationMap = {
-  l1: 'http://localhost:3000',
-  l2: 'http://localhost:3000/resource1/bus',
-  l3: 'http://localhost:3000/resource1/cart',
-  l4: 'http://localhost:3000/resource1/bus/resource2/three_wheel',
-  l5: 'http://localhost:3000/resource1/bus/resource2/four_wheel',
-  l6: 'http://localhost:3000/resource1/cart/resource2/three_wheel'
-}
-
-const { l1, l2, l3, l4, l5, l6 } = locationMap
-
-const locations = [
-  {
-    prevLocation: l1,
-    currLocation: l2
-  },
-  {
-    prevLocation: l2,
-    currLocation: l3
-  },
-  {
-    prevLocation: l2,
-    currLocation: l4
-  },
-  {
-    prevLocation: l3,
-    currLocation: l4
-  },
-  {
-    prevLocation: l4,
-    currLocation: l5
-  },
-  {
-    prevLocation: l5,
-    currLocation: l6
-  },
-]
-
-const RouteResourceProvider = routeResourceDetector(routesConfig)
-const RouteResourceConsumer = routeResourceDetector.RouteResourceConsumer
-
-const handleRouteChangedFunc = jest.fn()
-const __processRouteItemFunc = jest.fn()
-const __checkIfCachedExistFunc = jest.fn()
-
-RouteResourceProvider.prototype.handleRouteChanged = handleRouteChangedFunc
-RouteResourceProvider.prototype.__processRouteItem = __processRouteItemFunc
-RouteResourceProvider.prototype.__checkIfCachedExist = __checkIfCachedExistFunc
-
-class Component extends React.Component {
-  render () {
-    return (
-      <RouteResourceProvider>
-        <div>test</div>
-      </RouteResourceProvider>
-    )
-  }
-}
-
-test('test 1', () => {
   const comp = mount(<Component />)
+  const providerInstance = comp.instance().pRef.instanceRef
 
-  comp.handleRouteChanged(l1, l2)
+  if (callHandleRouteChanged) {
+    const [prevLocation, currLocation] = callHandleRouteChangedParams
+    providerInstance.handleRouteChanged(prevLocation, currLocation)
+  }
 
-  expect(__processRouteItemFunc)
-    .toHaveBeenCalledTimes(1)
-})
+  configCallTimes && configCallTimes.forEach(([ fn, times ], index) => {
+    expect(routesConfig[index][fn]).toHaveBeenCalledTimes(times)
+  })
 
-// class Component extends React.Component {
-//   render () {
-//     return (
-//       <RouteResourceProvider>
-//         <div>test</div>
-//       </RouteResourceProvider>
-//     )
-//   }
-// }
+  errors && errors.forEach(([ fn, errorType, currentLocation ], index) => {
+    const mockFn = ({ regexp, detect }, currLocation) => {
+      return new Promise((resolve, reject) => {
+        if (!detect || typeof detect !== 'function') {
+          reject(new Error('detect function must be provided!'))
+        }
 
-function sum(a, b) {
-  return a + b
-}
+        resolve()
+      })
+    }
 
-test('adds 1 + 2 to equal 3', () => {
-  expect(sum(1, 2)).toBe(3)
-})
+    expect(() => {
+      return mockFn(routesConfig[index], currentLocation)
+    }).toThrow()
+  })
+
+}, [
+  {
+    routesConfig: [
+      {
+        resourceType: 'resource1',
+        regexp: /resource1\/(\w+)/i,
+        select: jest.fn(() => {
+          console.log('resource1')
+        })
+      }
+    ],
+    callHandleRouteChanged: false,
+    configCallTimes: [
+      ['select', 1]
+    ]
+  },
+  // {
+  //   routesConfig: [
+  //     {
+  //       regexp: /resource1\/(\w+)/i
+  //     }
+  //   ],
+  //   // callHandleRouteChanged: true,
+  //   // callHandleRouteChangedParams: [null, l1],
+  //   errors: [
+  //     ['detect', Error, l1]
+  //   ]
+  // },
+  {
+    routesConfig: [
+      {
+        resourceType: 'resource1',
+        regexp: /resource1\/(\w+)/i,
+        select: jest.fn(() => {
+          console.log('resource1')
+        })
+      },
+      {
+        resourceType: 'resource2',
+        regexp: /resource1\/(\w+)\/resource2\/(\w+)/i,
+        select: jest.fn(() => {
+          console.log('resource2')
+        })
+      }
+    ],
+    callHandleRouteChanged: true,
+    callHandleRouteChangedParams: [l1, l2],
+    configCallTimes: [
+      ['select', 2],
+      ['select', 1]
+    ]
+  },
+  {
+    routesConfig: [
+      {
+        resourceType: 'resource3',
+        regexp: '\/resource3\/(\\w+)',
+        select: jest.fn(() => {
+          console.log('resource3')
+        })
+      },
+      {
+        regexp: '\/resource3\/(\\w+)\/resource4\/(\\w+)',
+        detect: jest.fn(() => {
+          console.log('resource4')
+        })
+      }
+    ],
+    callHandleRouteChanged: true,
+    callHandleRouteChangedParams: [null, l3],
+    configCallTimes: [
+      ['select', 1],
+      ['detect', 1]
+    ]
+  }
+])

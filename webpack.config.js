@@ -8,8 +8,7 @@ module.exports = {
   entry: './src/index.js',
   output: {
     path: path.resolve(__dirname, './build'),
-    filename: 'bundle.js',
-    // publicPath: '/assets/'   // path 和 publicPath 的区别？？
+    filename: 'bundle.js'
   },
   module: {
     rules: [{

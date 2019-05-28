@@ -4,7 +4,7 @@
   "description": "A resource detector for React",
   "main": "src/index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest --collectCoverage"
   },
   "repository": {
     "type": "git",
@@ -18,11 +18,17 @@
   "homepage": "https://github.com/space-fe/react-resource-detector#readme",
   "jest": {
     "transformIgnorePatterns": [
-      "node_modules/(?!react)/"
+      "node_modules/(?!react-onroutechanged)/"
+    ],
+    "setupFilesAfterEnv": [
+      "jest-enzyme"
     ],
     "testEnvironment": "enzyme",
     "testEnvironmentOptions": {
       "enzymeAdaptor": "react16"
+    },
+    "transform": {
+      "^.+\\.jsx?$": "babel-jest"
     }
   },
   "dependencies": {
@@ -39,6 +45,9 @@
     "@babel/preset-react": "^7.0.0",
     "babel-jest": "^24.8.0",
     "enzyme": "^3.9.0",
-    "jest": "^24.8.0"
+    "enzyme-adapter-react-16": "^1.13.2",
+    "jest": "^24.8.0",
+    "jest-enzyme": "^7.0.2",
+    "jest-in-case": "^1.0.2"
   }
 }

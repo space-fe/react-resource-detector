@@ -149,8 +149,8 @@ const routes = [
 
 const routeConfig = [
   {
-    type: 'resource1',
-    regexp: /resource1\/(\w)+/i,
+    resourceType: 'resource1',
+    regexp: '\/resource1\/(\\w+)',
     select: (id, matchResult, query) => {
       return new Promise((resolve, reject) => {
         setTimeout(() => {
@@ -164,8 +164,8 @@ const routeConfig = [
     }
   },
   {
-    type: 'resource3',
-    regexp: /resource1\/(\w)+\/resource3\/(\w)+/i,
+    resourceType: 'resource3',
+    regexp: /resource1\/(\w+)\/resource3\/(\w+)/i,
     select: (id, matchResult, query) => {
       return new Promise((resolve, reject) => {
         setTimeout(() => {
@@ -178,27 +178,16 @@ const routeConfig = [
       })
     }
   },
-  // {
-  //   type: 'resource_cart',
-  //   regexp: /resource1\/cart\/resource3\/(\w)+/i,
-  //   select: (id, matchResult, query) => {
-  //     return new Promise((resolve, reject) => {
-  //       setTimeout(() => {
-  //         console.log('第3个')
-  //         resolve({
-  //           cart: {
-  //             name: 'resource1/cart',
-  //             displayName: 'cart'
-  //           },
-  //           wheelCart: {
-  //             name: id,
-  //             displayName: 'wheelCart'
-  //           }
-  //         })
-  //       }, 500)
-  //     })
-  //   }
-  // }
+  {
+    regexp: /resource1\/cart\/resource3\/(\w+)/i,
+    detect: (currLocation, matchResult, query) => {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          console.log('第3个')
+        }, 100)
+      })
+    }
+  }
 ]
 
 function App() {
