@@ -1,4 +1,6 @@
 # react-resource-detector
+[![Build Status](https://travis-ci.org/space-fe/react-resource-detector.svg?branch=master)](https://travis-ci.org/space-fe/react-resource-detector)
+
 A resource detector for React, based on [**react-onroutechanged**](https://github.com/space-fe/react-onroutechanged).
 
 The `react-resource-detector` is a React Higer Order Component(HOC) that you can use with your own React components if you want to detect the resources in route when route changes.

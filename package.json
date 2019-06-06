@@ -1,0 +1,36 @@
+{
+  "name": "react-resource-detector",
+  "version": "0.0.1",
+  "description": "A resource detector for React components",
+  "main": "src/index.js",
+  "keywords": [
+    "react",
+    "hoc",
+    "location",
+    "detector",
+    "resource detector"
+  ],
+  "scripts": {
+    "test": "echo \"No test specified\"",
+    "lint": "eslint ./src"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/space-fe/react-resource-detector.git"
+  },
+  "author": "myx3901051@qq.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/space-fe/react-resource-detector/issues"
+  },
+  "homepage": "https://github.com/space-fe/react-resource-detector#readme",
+  "devDependencies": {
+    "eslint": "^5.16.0",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-import": "^2.17.3",
+    "eslint-plugin-node": "^9.1.0",
+    "eslint-plugin-promise": "^4.1.1",
+    "eslint-plugin-react": "^7.13.0",
+    "eslint-plugin-standard": "^4.0.0"
+  }
+}
