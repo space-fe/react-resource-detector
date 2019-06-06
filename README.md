@@ -101,4 +101,4 @@ A route pattern can be either a `string` or a `regexp` object.
 #### WhiteList and BlackList
 - If only `whiteList` is provided, the route will only be checked against the whitelisted resource patterns.
 - If only `blackList` is provided, the route will be checked against the resource patterns of `resourceConfigurations` except the blacklisted ones.
-- If both `whiteList` and `blackList` are provided, the route will be checked against the whitelisted resource patterns except the blacklisted ones.
+- If both `whiteList` and `blackList` are provided, the route will be checked against the whitelisted resource patterns that are not in blackList.
