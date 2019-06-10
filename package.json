@@ -12,8 +12,14 @@
   ],
   "scripts": {
     "test": "echo \"No test specified\"",
-    "lint": "eslint ./src"
+    "lint": "eslint src/**/*.+\\(js\\|ts\\)*\\(x\\)",
+    "precommit-msg": "echo 'Pre-commit checks...' && exit 0",
+    "build:types": "tsc --emitDeclarationOnly"
   },
+  "pre-commit": [
+    "precommit-msg",
+    "lint"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/space-fe/react-resource-detector.git"
@@ -31,6 +37,11 @@
     "eslint-plugin-node": "^9.1.0",
     "eslint-plugin-promise": "^4.1.1",
     "eslint-plugin-react": "^7.13.0",
-    "eslint-plugin-standard": "^4.0.0"
+    "eslint-plugin-standard": "^4.0.0",
+    "pre-commit": "^1.2.2",
+    "typescript": "^3.5.1"
+  },
+  "dependencies": {
+    "react": "^16.8.6"
   }
 }
