@@ -4,6 +4,7 @@
   "description": "A resource detector for React components",
   "main": "es/index.js",
   "module": "es/index.js",
+  "private": false,
   "keywords": [
     "react",
     "hoc",
@@ -36,9 +37,6 @@
   },
   "homepage": "https://github.com/space-fe/react-resource-detector#readme",
   "jest": {
-    "setupFiles": [
-      "./jest-setup.js"
-    ],
     "setupFilesAfterEnv": [
       "jest-enzyme"
     ],
@@ -72,6 +70,7 @@
     "jest-enzyme": "^7.0.2",
     "jest-in-case": "^1.0.2",
     "pre-commit": "^1.2.2",
+    "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "rollup": "^1.15.0",
     "rollup-plugin-babel": "^4.3.2",

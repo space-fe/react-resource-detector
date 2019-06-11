@@ -5,7 +5,7 @@ const SOURCE_PATH = path.join(__dirname, 'src')
 
 module.exports = {
   mode: 'development',
-  entry: ['@babel/polyfill', './src/index.js'],
+  entry: './src/index.js',
   output: {
     path: path.resolve(__dirname, './build'),
     filename: 'bundle.js'
@@ -21,8 +21,8 @@ module.exports = {
       ],
       include: [
         path.resolve(__dirname, 'src'),
-        /node_modules\/react-onroutechanged/,
-        /node_modules\/react-resource-detector/
+        path.resolve(__dirname, '../src'),
+        path.resolve(__dirname, 'node_modules/react-onroutechanged')
       ],
       loader: 'babel-loader'
     }]

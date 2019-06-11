@@ -80,7 +80,7 @@ cases('test', opts => {
     }
   }
 
-  const comp = mount(<App />) // eslint-disable-line
+  const comp = mount(<App />)
   const instance = comp.instance().pRef
 
   instance.handleRouteChanged(null, location)
