@@ -54,7 +54,7 @@ const routeResourceDetectorHOC = (DecoratedComponent) => {
       }
 
       return (
-        <DecoratedComponent {...this.props} />
+        <DecoratedComponent {...props} />
       )
     }
   }

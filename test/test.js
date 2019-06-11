@@ -7,49 +7,66 @@ const getLocation = (pathname) => ({ pathname })
 const l1 = getLocation('/school')
 const l2 = getLocation('/school/class/1')
 const l3 = getLocation('/school/class/1/student/1')
+const l4 = getLocation('/school/class/1/student/1/blog')
+const l5 = getLocation('/school/class/1/student/1/wechat')
 
 cases('test', opts => {
   const {
+    isReactComponent,
     location,
     callTimes
   } = opts
 
   const [classResourceCallTimes, studentResourceCallTimes, routeCallTimes] = callTimes
 
-  const classFn = jest.fn(() => {
-    console.log('class')
-  })
+  const classFn = jest.fn()
 
-  const studentFn = jest.fn(() => {
-    console.log('student')
-  })
+  const studentFn = jest.fn()
 
-  const routeFn = jest.fn(() => {
-    console.log('route detect')
-  })
+  const routeFn = jest.fn()
 
-  class School extends React.PureComponent {
-    resourceConfigurations = {
-      '/class/:classId': {
-        handler: classFn
-      },
-      '/class/:classId/student/:studentId': {
-        handler: studentFn
-      }
+  const resourceConfigurations = {
+    '/class/:classId': {
+      handler: classFn
+    },
+    '/class/:classId/student/:studentId': {
+      handler: studentFn
     }
-    routeConfigurations = {
-      '/school/class/:classId/student/:studentId': {
-        handler: routeFn,
-        blackList: ['/class/:classId']
-      }
-    }
-
-    render () {
-      return <div>School</div>
+  }
+  const routeConfigurations = {
+    '/school/class/:classId/student/:studentId': {
+      handler: routeFn,
+      blackList: ['/class/:classId']
+    },
+    '/school/class/:classId/student/:studentId/blog': {
+      handler: routeFn,
+      whiteList: ['/class/:classId']
+    },
+    '/school/class/:classId/student/:studentId/wechat': {
+      handler: routeFn,
+      shouldDetectResource: false
     }
   }
 
-  const DetectorComp = routeResourceDetectorHOC(School)
+  function School () {
+    School.resourceConfigurations = { ...resourceConfigurations }
+    School.routeConfigurations = { ...routeConfigurations }
+    return <div>School</div>
+  }
+
+  class Component extends React.Component {
+    constructor (props) {
+      super(props)
+      this.resourceConfigurations = { ...resourceConfigurations }
+      this.routeConfigurations = { ...routeConfigurations }
+    }
+
+    render () {
+      return <div>Component</div>
+    }
+  }
+
+  const DetectorComp = routeResourceDetectorHOC(isReactComponent ? Component : School)
 
   class App extends React.Component {
     pRef = null
@@ -57,34 +74,50 @@ cases('test', opts => {
     render () {
       return (
         <Router>
-          <DetectorComp
-            ref={ref => { this.pRef = ref }}
-            location={l1}
-          />
+          <DetectorComp ref={ref => { this.pRef = ref }} />
         </Router>
       )
     }
   }
 
-  const comp = mount(<App />)
-  const instance = comp.instance().pRef.instanceRef
+  const comp = mount(<App />) // eslint-disable-line
+  const instance = comp.instance().pRef
 
   instance.handleRouteChanged(null, location)
 
-  expect(classFn.toHaveBeenCalledTimes(classResourceCallTimes))
-  expect(studentFn.toHaveBeenCalledTimes(studentResourceCallTimes))
-  expect(routeFn.toHaveBeenCalledTimes(routeCallTimes))
+  expect(classFn).toHaveBeenCalledTimes(classResourceCallTimes)
+  expect(studentFn).toHaveBeenCalledTimes(studentResourceCallTimes)
+  expect(routeFn).toHaveBeenCalledTimes(routeCallTimes)
 }, [
   {
+    name: 'Should not call any functions when there are no matched routes and resources',
     location: l1,
     callTimes: [0, 0, 0]
   },
   {
+    name: 'Should call classFn once when there are no matched routes and one matched resource',
     location: l2,
-    callTimes: [0, 1, 0]
+    callTimes: [1, 0, 0]
   },
   {
+    name: 'If only blackList is provided, the route will be checked against the resource patterns of resourceConfigurations except the blacklisted ones.',
     location: l3,
     callTimes: [0, 1, 1]
+  },
+  {
+    name: 'If only whiteList is provided, the route will only be checked against the whitelisted resource patterns.',
+    location: l4,
+    callTimes: [1, 0, 1]
+  },
+  {
+    name: 'Check when the decorated component is React Component.',
+    isReactComponent: true,
+    location: l3,
+    callTimes: [0, 1, 1]
+  },
+  {
+    name: 'The resources lies in the route will not be detected if route configuration.shouldDetectResource=false',
+    location: l5,
+    callTimes: [0, 0, 1]
   }
 ])
