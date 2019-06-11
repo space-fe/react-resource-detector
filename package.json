@@ -32,6 +32,7 @@
   "homepage": "https://github.com/space-fe/react-resource-detector#readme",
   "devDependencies": {
     "@types/react": "^16.8.19",
+    "babel-eslint": "^10.0.1",
     "eslint": "^5.16.0",
     "eslint-config-standard": "^12.0.0",
     "eslint-plugin-import": "^2.17.3",
@@ -43,6 +44,7 @@
     "typescript": "^3.5.1"
   },
   "dependencies": {
+    "path-to-regexp": "^3.0.0",
     "react": "^16.8.6",
     "react-onroutechanged": "^1.0.0-beta.1"
   }

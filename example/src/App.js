@@ -1,7 +1,6 @@
 import React from 'react'
 import { BrowserRouter as Router, Route, Link } from 'react-router-dom'
-import routeResourceDetectorHOC from './temp'
-// import routeResourceDetectorHOC from 'react-resource-detector'
+import routeResourceDetectorHOC from 'react-resource-detector'
 
 function School () {
   return <h2>School</h2>
@@ -16,7 +15,32 @@ function Student () {
 }
 
 function RoutesComp () {
-  RoutesComp.resourceConfigurations = {}
+  RoutesComp.resourceConfigurations = {
+    '/class/:classId': {
+      handler: () => {
+        console.log('class')
+      }
+    },
+    '/class/(\\w)+': {
+      handler: () => {
+        console.log('regexp class')
+      }
+    },
+    '/class/:classId/student/:studentId': {
+      handler: () => {
+        console.log('student')
+      }
+    }
+  }
+
+  RoutesComp.routeConfigurations = {
+    '/school/class/:classId/student/:studentId': {
+      handler: () => {
+        console.log('route detect')
+      },
+      blackList: ['/class/:classId']
+    }
+  }
 
   return (
     <React.Fragment>

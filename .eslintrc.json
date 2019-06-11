@@ -1,6 +1,8 @@
 {
+  "parser": "babel-eslint",
   "env": {
     "browser": true,
+    "node": true,
     "es6": true
   },
   "extends": "standard",
@@ -19,6 +21,7 @@
     "react"
   ],
   "rules": {
-    "react/jsx-uses-vars": "error"
+    "react/jsx-uses-vars": "error",
+    "indent": ["error", 2]
   }
 }

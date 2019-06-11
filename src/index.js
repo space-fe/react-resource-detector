@@ -1,5 +1,6 @@
 import * as React from 'react'
 import onRouteChangedHOC from 'react-onroutechanged'
+import { triggerHandlers } from './helpers/utils'
 
 const routeResourceDetectorHOC = (DecoratedComponent) => {
   const componentName = DecoratedComponent.displayName || DecoratedComponent.name || 'Component'
@@ -34,9 +35,7 @@ const routeResourceDetectorHOC = (DecoratedComponent) => {
         routeConfigurations
       } = configs
 
-      console.log('handleRouteChanged')
-      console.log('prevLocation => ', prevLocation)
-      console.log('currLocation => ', currLocation)
+      triggerHandlers(currLocation, resourceConfigurations, routeConfigurations)
     }
 
     componentDidMount () {
