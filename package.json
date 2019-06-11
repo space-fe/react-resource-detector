@@ -11,7 +11,7 @@
     "resource detector"
   ],
   "scripts": {
-    "test": "echo \"No test specified\"",
+    "test": "jest --collectCoverage",
     "lint": "eslint src/**/*.+\\(js\\|ts\\)*\\(x\\)",
     "precommit-msg": "echo 'Pre-commit checks...' && exit 0",
     "build:types": "tsc --emitDeclarationOnly"
@@ -30,9 +30,31 @@
     "url": "https://github.com/space-fe/react-resource-detector/issues"
   },
   "homepage": "https://github.com/space-fe/react-resource-detector#readme",
+  "jest": {
+    "setupFiles": [
+      "./jest-setup.js"
+    ],
+    "setupFilesAfterEnv": [
+      "jest-enzyme"
+    ],
+    "testEnvironment": "enzyme",
+    "testEnvironmentOptions": {
+      "enzymeAdaptor": "react16"
+    },
+    "transform": {
+      "^.+\\.jsx?$": "babel-jest"
+    }
+  },
   "devDependencies": {
+    "@babel/core": "^7.4.5",
+    "@babel/plugin-proposal-class-properties": "^7.4.4",
+    "@babel/preset-env": "^7.4.5",
+    "@babel/preset-react": "^7.0.0",
     "@types/react": "^16.8.19",
     "babel-eslint": "^10.0.1",
+    "babel-jest": "^24.8.0",
+    "enzyme": "^3.10.0",
+    "enzyme-adapter-react-16": "^1.14.0",
     "eslint": "^5.16.0",
     "eslint-config-standard": "^12.0.0",
     "eslint-plugin-import": "^2.17.3",
@@ -40,7 +62,12 @@
     "eslint-plugin-promise": "^4.1.1",
     "eslint-plugin-react": "^7.13.0",
     "eslint-plugin-standard": "^4.0.0",
+    "jest": "^24.8.0",
+    "jest-environment-enzyme": "^7.0.2",
+    "jest-enzyme": "^7.0.2",
+    "jest-in-case": "^1.0.2",
     "pre-commit": "^1.2.2",
+    "react-dom": "^16.8.6",
     "typescript": "^3.5.1"
   },
   "dependencies": {
