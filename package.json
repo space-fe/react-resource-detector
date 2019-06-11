@@ -2,7 +2,8 @@
   "name": "react-resource-detector",
   "version": "0.0.1",
   "description": "A resource detector for React components",
-  "main": "src/index.js",
+  "main": "es/index.js",
+  "module": "es/index.js",
   "keywords": [
     "react",
     "hoc",
@@ -14,7 +15,11 @@
     "test": "jest --collectCoverage",
     "lint": "eslint src/**/*.+\\(js\\|ts\\)*\\(x\\)",
     "precommit-msg": "echo 'Pre-commit checks...' && exit 0",
-    "build:types": "tsc --emitDeclarationOnly"
+    "build:types": "tsc --emitDeclarationOnly",
+    "build": "rollup -c",
+    "release:patch": "yarn build  && yarn version --patch && yarn publish && git push --follow-tags",
+    "release:minor": "yarn build && yarn version --minor && yarn publish && git push --follow-tags",
+    "release:major": "yarn build && yarn version --major && yarn publish && git push --follow-tags"
   },
   "pre-commit": [
     "precommit-msg",
@@ -68,11 +73,15 @@
     "jest-in-case": "^1.0.2",
     "pre-commit": "^1.2.2",
     "react-dom": "^16.8.6",
+    "rollup": "^1.15.0",
+    "rollup-plugin-babel": "^4.3.2",
     "typescript": "^3.5.1"
+  },
+  "peerDependencies": {
+    "react": "^16.8.6"
   },
   "dependencies": {
     "path-to-regexp": "^3.0.0",
-    "react": "^16.8.6",
     "react-onroutechanged": "^1.0.0-beta.1"
   }
 }
