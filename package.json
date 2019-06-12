@@ -1,6 +1,6 @@
 {
   "name": "react-resource-detector",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A resource detector for React components",
   "main": "es/index.js",
   "module": "es/index.js",

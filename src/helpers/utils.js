@@ -31,26 +31,28 @@ export const triggerHandlers = (currLocation, resourceConfigurations, routeConfi
   const { pathname } = currLocation
   let hasMatch = false
 
-  Object.entries(routeConfigurations).forEach(([pattern, configuration]) => {
-    const {
-      handler = noop,
-      exact = true,
-      shouldDetectResource = true,
-      whiteList = [],
-      blackList = []
-    } = configuration
+  if (routeConfigurations) {
+    Object.entries(routeConfigurations).forEach(([pattern, configuration]) => {
+      const {
+        handler = noop,
+        exact = true,
+        shouldDetectResource = true,
+        whiteList = [],
+        blackList = []
+      } = configuration
 
-    const match = matchPath(pathname, { path: pattern, exact })
+      const match = matchPath(pathname, { path: pattern, exact })
 
-    if (match) {
-      hasMatch = true
-      handler(match.params, match.url, currLocation)
+      if (match) {
+        hasMatch = true
+        handler(match.params, match.url, currLocation)
 
-      if (shouldDetectResource) {
-        detectResources(currLocation, resourceConfigurations, whiteList, blackList)
+        if (shouldDetectResource) {
+          detectResources(currLocation, resourceConfigurations, whiteList, blackList)
+        }
       }
-    }
-  })
+    })
+  }
 
   if (!hasMatch) {
     detectResources(currLocation, resourceConfigurations)
