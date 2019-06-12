@@ -1,5 +1,4 @@
 import React from 'react'
-import { BrowserRouter as Router } from 'react-router-dom'
 import routeResourceDetectorHOC from '../src/index'
 import cases from 'jest-in-case'
 
@@ -72,11 +71,7 @@ cases('test', opts => {
     pRef = null
 
     render () {
-      return (
-        <Router>
-          <DetectorComp ref={ref => { this.pRef = ref }} />
-        </Router>
-      )
+      return <DetectorComp ref={ref => { this.pRef = ref }} />
     }
   }
 
