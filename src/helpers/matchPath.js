@@ -26,7 +26,6 @@ function matchPath (pathname, options = {}) {
   if (typeof options === 'string') options = { path: options }
 
   const { path, exact = false, strict = false, sensitive = false, start = true } = options
-
   const paths = [].concat(path)
 
   return paths.reduce((matched, path) => {
