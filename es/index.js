@@ -268,35 +268,38 @@ var detectResources = function detectResources(currLocation, resourceConfigurati
 var triggerHandlers = function triggerHandlers(currLocation, resourceConfigurations, routeConfigurations) {
   var pathname = currLocation.pathname;
   var hasMatch = false;
-  Object.entries(routeConfigurations).forEach(function (_ref7) {
-    var _ref8 = _slicedToArray(_ref7, 2),
-        pattern = _ref8[0],
-        configuration = _ref8[1];
 
-    var _configuration$handle2 = configuration.handler,
-        handler = _configuration$handle2 === void 0 ? noop : _configuration$handle2,
-        _configuration$exact = configuration.exact,
-        exact = _configuration$exact === void 0 ? true : _configuration$exact,
-        _configuration$should = configuration.shouldDetectResource,
-        shouldDetectResource = _configuration$should === void 0 ? true : _configuration$should,
-        _configuration$whiteL = configuration.whiteList,
-        whiteList = _configuration$whiteL === void 0 ? [] : _configuration$whiteL,
-        _configuration$blackL = configuration.blackList,
-        blackList = _configuration$blackL === void 0 ? [] : _configuration$blackL;
-    var match = matchPath(pathname, {
-      path: pattern,
-      exact: exact
-    });
+  if (routeConfigurations) {
+    Object.entries(routeConfigurations).forEach(function (_ref7) {
+      var _ref8 = _slicedToArray(_ref7, 2),
+          pattern = _ref8[0],
+          configuration = _ref8[1];
 
-    if (match) {
-      hasMatch = true;
-      handler(match.params, match.url, currLocation);
+      var _configuration$handle2 = configuration.handler,
+          handler = _configuration$handle2 === void 0 ? noop : _configuration$handle2,
+          _configuration$exact = configuration.exact,
+          exact = _configuration$exact === void 0 ? true : _configuration$exact,
+          _configuration$should = configuration.shouldDetectResource,
+          shouldDetectResource = _configuration$should === void 0 ? true : _configuration$should,
+          _configuration$whiteL = configuration.whiteList,
+          whiteList = _configuration$whiteL === void 0 ? [] : _configuration$whiteL,
+          _configuration$blackL = configuration.blackList,
+          blackList = _configuration$blackL === void 0 ? [] : _configuration$blackL;
+      var match = matchPath(pathname, {
+        path: pattern,
+        exact: exact
+      });
 
-      if (shouldDetectResource) {
-        detectResources(currLocation, resourceConfigurations, whiteList, blackList);
+      if (match) {
+        hasMatch = true;
+        handler(match.params, match.url, currLocation);
+
+        if (shouldDetectResource) {
+          detectResources(currLocation, resourceConfigurations, whiteList, blackList);
+        }
       }
-    }
-  });
+    });
+  }
 
   if (!hasMatch) {
     detectResources(currLocation, resourceConfigurations);
