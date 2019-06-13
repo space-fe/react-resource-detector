@@ -9,7 +9,7 @@ const l3 = getLocation('/school/class/1/student/1')
 const l4 = getLocation('/school/class/1/student/1/blog')
 const l5 = getLocation('/school/class/1/student/1/wechat')
 
-cases('test', opts => {
+cases('test routeResourceDetectorHOC', opts => {
   const {
     isReactComponent,
     location,
@@ -22,6 +22,7 @@ cases('test', opts => {
 
   const studentFn = jest.fn()
 
+  // const resourceFn = jest.fn()
   const routeFn = jest.fn()
 
   const resourceConfigurations = {
@@ -84,6 +85,19 @@ cases('test', opts => {
   expect(studentFn).toHaveBeenCalledTimes(studentResourceCallTimes)
   expect(routeFn).toHaveBeenCalledTimes(routeCallTimes)
 }, [
+  // {
+  //   name: '',
+  //   isReactComponent: false,
+  //   resourceConfigurations: {
+  //     '/class/:classId': {
+  //       handler: jest.fn()
+  //     }
+  //   },
+  //   routeConfigurations: {}, // whiteList & blackList
+  //   locationChangingPath: [l1],
+  //   resourceHandlerTriggerTimes: [],
+  //   routeHandlerTriggerTimes: []
+  // },
   {
     name: 'Should not call any functions when there are no matched routes and resources',
     location: l1,

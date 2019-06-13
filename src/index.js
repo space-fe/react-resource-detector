@@ -39,7 +39,7 @@ const routeResourceDetectorHOC = (DecoratedComponent) => {
       })
     }
 
-    __triggerHandlers = (currLocation) => {
+    __triggerRouteHandlers = (currLocation) => {
       const { pathname } = currLocation
       let hasMatch = false
 
@@ -68,7 +68,7 @@ const routeResourceDetectorHOC = (DecoratedComponent) => {
     }
 
     handleRouteChanged = (_, currLocation) => {
-      this.__triggerHandlers(currLocation)
+      this.__triggerRouteHandlers(currLocation)
     }
 
     componentDidMount () {
