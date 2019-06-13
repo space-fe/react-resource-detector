@@ -1,12 +1,14 @@
 {
+  "parser": "babel-eslint",
   "env": {
     "browser": true,
-    "es6": true
+    "node": true,
+    "es6": true,
+    "jest": true
   },
   "extends": "standard",
   "globals": {
-    "Atomics": "readonly",
-    "SharedArrayBuffer": "readonly"
+    "mount": true
   },
   "parserOptions": {
     "ecmaFeatures": {
@@ -19,5 +21,7 @@
     "react"
   ],
   "rules": {
+    "react/jsx-uses-vars": "error",
+    "indent": ["error", 2]
   }
 }

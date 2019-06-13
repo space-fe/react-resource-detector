@@ -1,8 +1,10 @@
 {
   "name": "react-resource-detector",
-  "version": "0.0.1",
+  "version": "0.0.4-beta.0",
   "description": "A resource detector for React components",
-  "main": "src/index.js",
+  "main": "es/index.js",
+  "module": "es/index.js",
+  "private": false,
   "keywords": [
     "react",
     "hoc",
@@ -11,9 +13,19 @@
     "resource detector"
   ],
   "scripts": {
-    "test": "echo \"No test specified\"",
-    "lint": "eslint ./src"
+    "test": "jest --collectCoverage",
+    "lint": "eslint src/**/*.+\\(js\\|ts\\)*\\(x\\)",
+    "precommit-msg": "echo 'Pre-commit checks...' && exit 0",
+    "build:types": "tsc --emitDeclarationOnly",
+    "build": "rollup -c",
+    "release:patch": "yarn build  && yarn version --patch && yarn publish && git push --follow-tags",
+    "release:minor": "yarn build && yarn version --minor && yarn publish && git push --follow-tags",
+    "release:major": "yarn build && yarn version --major && yarn publish && git push --follow-tags"
   },
+  "pre-commit": [
+    "precommit-msg",
+    "lint"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/space-fe/react-resource-detector.git"
@@ -24,13 +36,51 @@
     "url": "https://github.com/space-fe/react-resource-detector/issues"
   },
   "homepage": "https://github.com/space-fe/react-resource-detector#readme",
+  "jest": {
+    "setupFilesAfterEnv": [
+      "jest-enzyme"
+    ],
+    "testEnvironment": "enzyme",
+    "testEnvironmentOptions": {
+      "enzymeAdaptor": "react16"
+    },
+    "transform": {
+      "^.+\\.jsx?$": "babel-jest"
+    }
+  },
   "devDependencies": {
+    "@babel/core": "^7.4.5",
+    "@babel/plugin-proposal-class-properties": "^7.4.4",
+    "@babel/preset-env": "^7.4.5",
+    "@babel/preset-react": "^7.0.0",
+    "@types/react": "^16.8.19",
+    "babel-eslint": "^10.0.1",
+    "babel-jest": "^24.8.0",
+    "enzyme": "^3.10.0",
+    "enzyme-adapter-react-16": "^1.14.0",
     "eslint": "^5.16.0",
     "eslint-config-standard": "^12.0.0",
     "eslint-plugin-import": "^2.17.3",
     "eslint-plugin-node": "^9.1.0",
     "eslint-plugin-promise": "^4.1.1",
     "eslint-plugin-react": "^7.13.0",
-    "eslint-plugin-standard": "^4.0.0"
+    "eslint-plugin-standard": "^4.0.0",
+    "jest": "^24.8.0",
+    "jest-environment-enzyme": "^7.0.2",
+    "jest-enzyme": "^7.0.2",
+    "jest-in-case": "^1.0.2",
+    "pre-commit": "^1.2.2",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "rollup": "^1.15.0",
+    "rollup-plugin-babel": "^4.3.2",
+    "typescript": "^3.5.1"
+  },
+  "peerDependencies": {
+    "react": "^16.8.6"
+  },
+  "dependencies": {
+    "path-to-regexp": "^3.0.0",
+    "react-onroutechanged": "^1.0.0-beta.1"
   }
 }
