@@ -225,90 +225,11 @@ function matchPath(pathname) {
 
 var noop = function noop() {};
 
-var detectResource = function detectResource(currLocation, pattern, configuration) {
-  var _configuration$handle = configuration.handler,
-      handler = _configuration$handle === void 0 ? noop : _configuration$handle;
-  var pathname = currLocation.pathname;
-  var match = matchPath(pathname, {
-    path: pattern,
-    start: false
-  });
-
-  if (match) {
-    handler(match.params, match.url, currLocation);
-  }
-};
-var detectResources = function detectResources(currLocation, resourceConfigurations) {
-  var whiteList = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
-  var blackList = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : [];
-  var resourcesToBeDetected = Object.entries(resourceConfigurations).filter(function (_ref) {
-    var _ref2 = _slicedToArray(_ref, 1),
-        pattern = _ref2[0];
-
-    return !blackList.includes(pattern);
-  });
-
-  if (whiteList.length) {
-    resourcesToBeDetected = resourcesToBeDetected.filter(function (_ref3) {
-      var _ref4 = _slicedToArray(_ref3, 1),
-          pattern = _ref4[0];
-
-      return whiteList.includes(pattern);
-    });
-  }
-
-  resourcesToBeDetected.forEach(function (_ref5) {
-    var _ref6 = _slicedToArray(_ref5, 2),
-        pattern = _ref6[0],
-        configuration = _ref6[1];
-
-    detectResource(currLocation, pattern, configuration);
-  });
-};
-var triggerHandlers = function triggerHandlers(currLocation, resourceConfigurations, routeConfigurations) {
-  var pathname = currLocation.pathname;
-  var hasMatch = false;
-
-  if (routeConfigurations) {
-    Object.entries(routeConfigurations).forEach(function (_ref7) {
-      var _ref8 = _slicedToArray(_ref7, 2),
-          pattern = _ref8[0],
-          configuration = _ref8[1];
-
-      var _configuration$handle2 = configuration.handler,
-          handler = _configuration$handle2 === void 0 ? noop : _configuration$handle2,
-          _configuration$exact = configuration.exact,
-          exact = _configuration$exact === void 0 ? true : _configuration$exact,
-          _configuration$should = configuration.shouldDetectResource,
-          shouldDetectResource = _configuration$should === void 0 ? true : _configuration$should,
-          _configuration$whiteL = configuration.whiteList,
-          whiteList = _configuration$whiteL === void 0 ? [] : _configuration$whiteL,
-          _configuration$blackL = configuration.blackList,
-          blackList = _configuration$blackL === void 0 ? [] : _configuration$blackL;
-      var match = matchPath(pathname, {
-        path: pattern,
-        exact: exact
-      });
-
-      if (match) {
-        hasMatch = true;
-        handler(match.params, match.url, currLocation);
-
-        if (shouldDetectResource) {
-          detectResources(currLocation, resourceConfigurations, whiteList, blackList);
-        }
-      }
-    });
-  }
-
-  if (!hasMatch) {
-    detectResources(currLocation, resourceConfigurations);
-  }
-};
-
 var routeResourceDetectorHOC = function routeResourceDetectorHOC(DecoratedComponent) {
   var componentName = DecoratedComponent.displayName || DecoratedComponent.name || 'Component';
   var isReactComponent = DecoratedComponent.prototype.isReactComponent;
+  var resourceConfigurations;
+  var routeConfigurations;
 
   var ResourceDetectorComponent =
   /*#__PURE__*/
@@ -328,30 +249,95 @@ var routeResourceDetectorHOC = function routeResourceDetectorHOC(DecoratedCompon
 
       _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(ResourceDetectorComponent)).call.apply(_getPrototypeOf2, [this].concat(args)));
 
-      _defineProperty(_assertThisInitialized(_this), "__getConfigurations", function () {
-        var resourceConfigurations;
-        var routeConfigurations;
+      _defineProperty(_assertThisInitialized(_this), "__getResourcesToBeDetected", function () {
+        var whiteList = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+        var blackList = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+        var resourcesToBeDetected = Object.entries(resourceConfigurations).filter(function (_ref) {
+          var _ref2 = _slicedToArray(_ref, 1),
+              pattern = _ref2[0];
 
-        if (isReactComponent) {
-          resourceConfigurations = _this.instanceRef.resourceConfigurations;
-          routeConfigurations = _this.instanceRef.routeConfigurations;
-        } else {
-          resourceConfigurations = DecoratedComponent.resourceConfigurations;
-          routeConfigurations = DecoratedComponent.routeConfigurations;
+          return !blackList.includes(pattern);
+        });
+
+        if (whiteList.length) {
+          resourcesToBeDetected = resourcesToBeDetected.filter(function (_ref3) {
+            var _ref4 = _slicedToArray(_ref3, 1),
+                pattern = _ref4[0];
+
+            return whiteList.includes(pattern);
+          });
         }
 
-        return {
-          resourceConfigurations: resourceConfigurations,
-          routeConfigurations: routeConfigurations
-        };
+        return resourcesToBeDetected;
       });
 
-      _defineProperty(_assertThisInitialized(_this), "handleRouteChanged", function (prevLocation, currLocation) {
-        var configs = _this.__getConfigurations();
+      _defineProperty(_assertThisInitialized(_this), "__detectResources", function (currLocation, resources) {
+        resources.forEach(function (_ref5) {
+          var _ref6 = _slicedToArray(_ref5, 2),
+              pattern = _ref6[0],
+              configuration = _ref6[1];
 
-        var resourceConfigurations = configs.resourceConfigurations,
-            routeConfigurations = configs.routeConfigurations;
-        triggerHandlers(currLocation, resourceConfigurations, routeConfigurations);
+          var _configuration$handle = configuration.handler,
+              handler = _configuration$handle === void 0 ? noop : _configuration$handle;
+          var pathname = currLocation.pathname;
+          var match = matchPath(pathname, {
+            path: pattern,
+            start: false
+          });
+
+          if (match) {
+            handler(match.params, match.url, currLocation);
+          }
+        });
+      });
+
+      _defineProperty(_assertThisInitialized(_this), "__triggerRouteHandlers", function (currLocation) {
+        var pathname = currLocation.pathname;
+        var hasMatch = false;
+
+        if (routeConfigurations) {
+          Object.entries(routeConfigurations).forEach(function (_ref7) {
+            var _ref8 = _slicedToArray(_ref7, 2),
+                pattern = _ref8[0],
+                configuration = _ref8[1];
+
+            var _configuration$handle2 = configuration.handler,
+                handler = _configuration$handle2 === void 0 ? noop : _configuration$handle2,
+                _configuration$exact = configuration.exact,
+                exact = _configuration$exact === void 0 ? true : _configuration$exact,
+                _configuration$whiteL = configuration.whiteList,
+                whiteList = _configuration$whiteL === void 0 ? [] : _configuration$whiteL,
+                _configuration$blackL = configuration.blackList,
+                blackList = _configuration$blackL === void 0 ? [] : _configuration$blackL,
+                _configuration$should = configuration.shouldDetectResource,
+                shouldDetectResource = _configuration$should === void 0 ? true : _configuration$should;
+            var match = matchPath(pathname, {
+              path: pattern,
+              exact: exact
+            });
+
+            if (match) {
+              hasMatch = true;
+              handler(match.params, match.url, currLocation);
+
+              if (shouldDetectResource) {
+                var resourcesToBeDetected = _this.__getResourcesToBeDetected(whiteList, blackList);
+
+                _this.__detectResources(currLocation, resourcesToBeDetected);
+              }
+            }
+          });
+        }
+
+        if (!hasMatch) {
+          var resourcesToBeDetected = _this.__getResourcesToBeDetected();
+
+          _this.__detectResources(currLocation, resourcesToBeDetected);
+        }
+      });
+
+      _defineProperty(_assertThisInitialized(_this), "handleRouteChanged", function (_, currLocation) {
+        _this.__triggerRouteHandlers(currLocation);
       });
 
       return _this;
@@ -360,11 +346,16 @@ var routeResourceDetectorHOC = function routeResourceDetectorHOC(DecoratedCompon
     _createClass(ResourceDetectorComponent, [{
       key: "componentDidMount",
       value: function componentDidMount() {
-        var _this$__getConfigurat = this.__getConfigurations(),
-            resourceConfigurations = _this$__getConfigurat.resourceConfigurations;
+        if (isReactComponent) {
+          resourceConfigurations = this.instanceRef.resourceConfigurations;
+          routeConfigurations = this.instanceRef.routeConfigurations;
+        } else {
+          resourceConfigurations = DecoratedComponent.resourceConfigurations;
+          routeConfigurations = DecoratedComponent.routeConfigurations;
+        }
 
         if (!resourceConfigurations || !Object.keys(resourceConfigurations).length) {
-          throw new Error("The resourceConfigurations of ".concat(DecoratedComponent, " must be provided!"));
+          throw new Error("The resourceConfigurations of ".concat(componentName, " must be provided!"));
         }
       }
     }, {
