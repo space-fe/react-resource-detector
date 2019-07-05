@@ -6,7 +6,7 @@ const noop = () => {}
 
 const routeResourceDetectorHOC = (DecoratedComponent) => {
   const componentName = DecoratedComponent.displayName || DecoratedComponent.name || 'Component'
-  const isReactComponent = DecoratedComponent.prototype.isReactComponent
+  const isReactComponent = DecoratedComponent.prototype && DecoratedComponent.prototype.isReactComponent
 
   let resourceConfigurations
   let routeConfigurations
