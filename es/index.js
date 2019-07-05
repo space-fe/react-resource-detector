@@ -227,7 +227,7 @@ var noop = function noop() {};
 
 var routeResourceDetectorHOC = function routeResourceDetectorHOC(DecoratedComponent) {
   var componentName = DecoratedComponent.displayName || DecoratedComponent.name || 'Component';
-  var isReactComponent = DecoratedComponent.prototype.isReactComponent;
+  var isReactComponent = DecoratedComponent.prototype && DecoratedComponent.prototype.isReactComponent;
   var resourceConfigurations;
   var routeConfigurations;
 
