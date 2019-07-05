@@ -56,7 +56,7 @@ class StudentInfo extends React.PureComponent {
   }
 }
 
-export default routeResourceDetectorHOC(StudentManagement)
+export default routeResourceDetectorHOC(StudentInfo)
 ```
 
 ### Functional Component
