@@ -4,7 +4,7 @@ import matchPath from './helpers/matchPath'
 
 const noop = () => {}
 
-const routeResourceDetectorHOC = (DecoratedComponent) => {
+const routeResourceDetectorHOC = (DecoratedComponent, config = { shouldDetectResourceForAllRoutes: true }) => {
   const componentName = DecoratedComponent.displayName || DecoratedComponent.name || 'Component'
   const isReactComponent = DecoratedComponent.prototype && DecoratedComponent.prototype.isReactComponent
 
@@ -61,7 +61,7 @@ const routeResourceDetectorHOC = (DecoratedComponent) => {
           })
       }
 
-      if (!hasMatch) {
+      if (!hasMatch && config.shouldDetectResourceForAllRoutes) {
         const resourcesToBeDetected = this.__getResourcesToBeDetected()
         this.__detectResources(currLocation, resourcesToBeDetected)
       }

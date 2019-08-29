@@ -226,6 +226,9 @@ function matchPath(pathname) {
 var noop = function noop() {};
 
 var routeResourceDetectorHOC = function routeResourceDetectorHOC(DecoratedComponent) {
+  var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {
+    shouldDetectResourceForAllRoutes: true
+  };
   var componentName = DecoratedComponent.displayName || DecoratedComponent.name || 'Component';
   var isReactComponent = DecoratedComponent.prototype && DecoratedComponent.prototype.isReactComponent;
   var resourceConfigurations;
@@ -329,7 +332,7 @@ var routeResourceDetectorHOC = function routeResourceDetectorHOC(DecoratedCompon
           });
         }
 
-        if (!hasMatch) {
+        if (!hasMatch && config.shouldDetectResourceForAllRoutes) {
           var resourcesToBeDetected = _this.__getResourcesToBeDetected();
 
           _this.__detectResources(currLocation, resourcesToBeDetected);
