@@ -56,7 +56,9 @@ class StudentInfo extends React.PureComponent {
   }
 }
 
-export default routeResourceDetectorHOC(StudentInfo)
+export default routeResourceDetectorHOC(StudentInfo, {
+  shouldDetectResourceForAllRoutes: false
+})
 ```
 
 ### Functional Component
@@ -71,6 +73,15 @@ const StudentInfo = (props) => {
 
 export default routeResourceDetectorHOC(StudentInfo)
 ```
+
+## routeResourceDetectorHOC
+- First parameter: Decorated Component.
+- Second parameter: Global detection configuration object.
+
+### Global Detection Configuration
+| Name           | Type      | Default | Description                                                                                                                                                                                                                             |
+| -------------- | --------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `shouldDetectResourceForAllRoutes` | `boolean` | `true` | If `true`, the resources lies in all routes will be detected by default. |
 
 ## Resource Configuration
 - The `resourceConfigurations` is a dictionary of resource detection configurations. The key is a resource pattern, and the value is a resource detection configuration for this resource.
