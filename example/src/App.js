@@ -1,5 +1,5 @@
 import React from 'react'
-import { BrowserRouter as Router, Route, Link } from 'react-router-dom'
+import { BrowserRouter, Route, Link } from 'react-router-dom'
 import routeResourceDetectorHOC from '../../src'
 
 function School () {
@@ -14,7 +14,7 @@ function Student () {
   return <h2>Student</h2>
 }
 
-function RoutesComp () {
+const RoutesComp = () => {
   RoutesComp.resourceConfigurations = {
     '/class/:classId': {
       handler: () => {
@@ -60,9 +60,9 @@ class App extends React.PureComponent {
     const Detector = routeResourceDetectorHOC(RoutesComp)
 
     return (
-      <Router>
+      <BrowserRouter>
         <Detector />
-      </Router>
+      </BrowserRouter>
     )
   }
 }

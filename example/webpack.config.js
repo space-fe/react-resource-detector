@@ -5,7 +5,7 @@ const SOURCE_PATH = path.join(__dirname, 'src')
 
 module.exports = {
   mode: 'development',
-  entry: './src/index.js',
+  entry: './example/src/index.js',
   output: {
     path: path.resolve(__dirname, './build'),
     filename: 'bundle.js'
