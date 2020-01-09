@@ -12,61 +12,65 @@ const routeResourceDetectorHOC = (DecoratedComponent, config = { shouldDetectRes
   let resourceConfigurations
   let routeConfigurations
 
-  const __getResourcesToBeDetected = (whiteList = [], blackList = []) => {
-    let resourcesToBeDetected = Object
-      .entries(resourceConfigurations)
-      .filter(([pattern]) => !blackList.includes(pattern))
-
-    if (whiteList.length) {
-      resourcesToBeDetected = resourcesToBeDetected
-        .filter(([pattern]) => whiteList.includes(pattern))
-    }
-
-    return resourcesToBeDetected
-  }
-
-  const __detectResources = (currLocation, resources) => {
-    resources.forEach(([pattern, configuration]) => {
-      const { handler = noop } = configuration
-      const { pathname } = currLocation
-      const match = matchPath(pathname, { path: pattern, start: false })
-
-      if (match) {
-        handler(match.params, match.url, currLocation)
-      }
-    })
-  }
-
-  const __triggerRouteHandlers = (currLocation) => {
-    const { pathname } = currLocation
-    let hasMatch = false
-
-    if (routeConfigurations) {
-      Object.entries(routeConfigurations)
-        .forEach(([pattern, configuration]) => {
-          const { handler = noop, exact = true, whiteList = [], blackList = [], shouldDetectResource = true } = configuration
-          const match = matchPath(pathname, { path: pattern, exact })
-
-          if (match) {
-            hasMatch = true
-            handler(match.params, match.url, currLocation)
-
-            if (shouldDetectResource) {
-              const resourcesToBeDetected = __getResourcesToBeDetected(whiteList, blackList)
-              __detectResources(currLocation, resourcesToBeDetected)
-            }
-          }
-        })
-    }
-
-    if (!hasMatch && config.shouldDetectResourceForAllRoutes) {
-      const resourcesToBeDetected = __getResourcesToBeDetected()
-      __detectResources(currLocation, resourcesToBeDetected)
-    }
-  }
-
   const ResourceDetectorComponent = (props) => {
     const instanceRef = useRef()
+
+    const __getResourcesToBeDetected = (whiteList = [], blackList = []) => {
+      let resourcesToBeDetected = Object
+        .entries(resourceConfigurations)
+        .filter(([pattern]) => !blackList.includes(pattern))
+
+      if (whiteList.length) {
+        resourcesToBeDetected = resourcesToBeDetected
+          .filter(([pattern]) => whiteList.includes(pattern))
+      }
+
+      return resourcesToBeDetected
+    }
+
+    const __detectResources = (currLocation, resources) => {
+      resources.forEach(([pattern, configuration]) => {
+        const { handler = noop } = configuration
+        const { pathname } = currLocation
+        const match = matchPath(pathname, { path: pattern, start: false })
+
+        if (match) {
+          handler(match.params, match.url, currLocation)
+        }
+      })
+    }
+
+    const __triggerRouteHandlers = (currLocation) => {
+      const { pathname } = currLocation
+      let hasMatch = false
+
+      if (routeConfigurations) {
+        Object.entries(routeConfigurations)
+          .forEach(([pattern, configuration]) => {
+            const { handler = noop, exact = true, whiteList = [], blackList = [], shouldDetectResource = true } = configuration
+            const match = matchPath(pathname, { path: pattern, exact })
+
+            if (match) {
+              hasMatch = true
+              handler(match.params, match.url, currLocation)
+
+              if (shouldDetectResource) {
+                const resourcesToBeDetected = __getResourcesToBeDetected(whiteList, blackList)
+                __detectResources(currLocation, resourcesToBeDetected)
+              }
+            }
+          })
+      }
+
+      if (!hasMatch && config.shouldDetectResourceForAllRoutes) {
+        const resourcesToBeDetected = __getResourcesToBeDetected()
+        __detectResources(currLocation, resourcesToBeDetected)
+      }
+    }
+
+    ResourceDetectorComponent.handleRouteChanged = (_, currLocation) => {
+      __triggerRouteHandlers(currLocation)
+    }
 
     useEffect(() => {
       if (isReactComponent) {
@@ -91,11 +95,7 @@ const routeResourceDetectorHOC = (DecoratedComponent, config = { shouldDetectRes
     return <DecoratedComponent {...allProps} />
   }
 
-  ResourceDetectorComponent.handleRouteChanged = (_, currLocation) => {
-    __triggerRouteHandlers(currLocation)
-  }
-
-  return onRouteChangedHOC(ResourceDetectorComponent, { mounted: true, handleRouteChanged: ResourceDetectorComponent.handleRouteChanged })
+  return onRouteChangedHOC(ResourceDetectorComponent, { mounted: true })
 }
 
 export default routeResourceDetectorHOC

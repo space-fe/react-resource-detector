@@ -50,21 +50,14 @@ cases('test routeResourceDetectorHOC', opts => {
     }
   }
 
+  // DetectorComp is React Element `ResourceDetectorComponent`
   const DetectorComp = routeResourceDetectorHOC(isReactComponent ? Component : School)
 
-  class App extends React.Component {
-    pRef = null
-
-    render () {
-      return <DetectorComp ref={ref => { this.pRef = ref }} />
-    }
-  }
-
-  const comp = mount(<App />)
-  const instance = comp.instance().pRef
+  // Execute `DetectorComp` component once, in order to assign value to `DetectorComp.handleRouteChanged`
+  mount(<DetectorComp />)
 
   locationChangingPath.reduce((prevLocation, currLocation) => {
-    instance.handleRouteChanged(prevLocation, currLocation)
+    DetectorComp.handleRouteChanged(prevLocation, currLocation)
     return currLocation
   }, null)
 
