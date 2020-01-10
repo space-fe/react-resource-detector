@@ -5,9 +5,12 @@ import matchPath from './helpers/matchPath'
 const noop = () => {}
 const { useEffect, useRef } = React
 
-const routeResourceDetectorHOC = (DecoratedComponent, config = { shouldDetectResourceForAllRoutes: true }) => {
+const routeResourceDetectorHOC = (DecoratedComponent, config = { shouldDetectResourceForAllRoutes: true, detectResourceInSequence: false }) => {
   const componentName = DecoratedComponent.displayName || DecoratedComponent.name || 'Component'
   const isReactComponent = DecoratedComponent.prototype && DecoratedComponent.prototype.isReactComponent
+
+  const shouldDetectResourceForAllRoutes = config.shouldDetectResourceForAllRoutes || true
+  const detectResourceInSequence = config.detectResourceInSequence || false
 
   let resourceConfigurations
   let routeConfigurations
@@ -28,16 +31,22 @@ const routeResourceDetectorHOC = (DecoratedComponent, config = { shouldDetectRes
       return resourcesToBeDetected
     }
 
-    const __detectResources = (currLocation, resources) => {
-      resources.forEach(([pattern, configuration]) => {
+    const __detectResources = async (currLocation, resources, detectResourceInSequence) => {
+      for (const [pattern, configuration] of resources) {
         const { handler = noop } = configuration
         const { pathname } = currLocation
         const match = matchPath(pathname, { path: pattern, start: false })
 
-        if (match) {
+        if (!match) {
+          continue
+        }
+
+        if (detectResourceInSequence) {
+          await handler(match.params, match.url, currLocation)
+        } else {
           handler(match.params, match.url, currLocation)
         }
-      })
+      }
     }
 
     const __triggerRouteHandlers = (currLocation) => {
@@ -45,26 +54,37 @@ const routeResourceDetectorHOC = (DecoratedComponent, config = { shouldDetectRes
       let hasMatch = false
 
       if (routeConfigurations) {
-        Object.entries(routeConfigurations)
-          .forEach(([pattern, configuration]) => {
-            const { handler = noop, exact = true, whiteList = [], blackList = [], shouldDetectResource = true } = configuration
-            const match = matchPath(pathname, { path: pattern, exact })
+        const routeConfigs = Object.entries(routeConfigurations)
+        for (const [pattern, configuration] of routeConfigs) {
+          const {
+            handler = noop,
+            exact = true,
+            whiteList = [],
+            blackList = [],
+            shouldDetectResource = true,
+            detectResourceInSequence = false
+          } = configuration
+          const match = matchPath(pathname, { path: pattern, exact })
 
-            if (match) {
-              hasMatch = true
-              handler(match.params, match.url, currLocation)
+          if (!match) {
+            continue
+          }
 
-              if (shouldDetectResource) {
-                const resourcesToBeDetected = __getResourcesToBeDetected(whiteList, blackList)
-                __detectResources(currLocation, resourcesToBeDetected)
-              }
-            }
-          })
+          hasMatch = true
+          handler(match.params, match.url, currLocation)
+
+          if (!shouldDetectResource) {
+            continue
+          }
+
+          const resourcesToBeDetected = __getResourcesToBeDetected(whiteList, blackList)
+          __detectResources(currLocation, resourcesToBeDetected, detectResourceInSequence)
+        }
       }
 
-      if (!hasMatch && config.shouldDetectResourceForAllRoutes) {
+      if (!hasMatch && shouldDetectResourceForAllRoutes) {
         const resourcesToBeDetected = __getResourcesToBeDetected()
-        __detectResources(currLocation, resourcesToBeDetected)
+        __detectResources(currLocation, resourcesToBeDetected, detectResourceInSequence)
       }
     }
 

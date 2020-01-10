@@ -17,8 +17,13 @@ function Student () {
 const RoutesComp = () => {
   RoutesComp.resourceConfigurations = {
     '/class/:classId': {
-      handler: () => {
-        console.log('class')
+      handler: async () => {
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            console.log('class')
+            resolve()
+          }, 1000)
+        })
       }
     },
     '/class/(\\w)+': {
@@ -57,7 +62,7 @@ const RoutesComp = () => {
 
 class App extends React.PureComponent {
   render () {
-    const Detector = routeResourceDetectorHOC(RoutesComp)
+    const Detector = routeResourceDetectorHOC(RoutesComp, { detectResourceInSequence: true })
 
     return (
       <BrowserRouter>

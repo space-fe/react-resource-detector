@@ -1,74 +1,11 @@
+import _extends from '@babel/runtime/helpers/extends';
+import _regeneratorRuntime from '@babel/runtime/regenerator';
+import _asyncToGenerator from '@babel/runtime/helpers/asyncToGenerator';
+import _slicedToArray from '@babel/runtime/helpers/slicedToArray';
 import { createElement, useEffect as useEffect$1, useRef as useRef$1 } from 'react';
 import onRouteChangedHOC from 'react-onroutechanged';
+import _toArray from '@babel/runtime/helpers/toArray';
 import pathToRegexp from 'path-to-regexp';
-
-function _extends() {
-  _extends = Object.assign || function (target) {
-    for (var i = 1; i < arguments.length; i++) {
-      var source = arguments[i];
-
-      for (var key in source) {
-        if (Object.prototype.hasOwnProperty.call(source, key)) {
-          target[key] = source[key];
-        }
-      }
-    }
-
-    return target;
-  };
-
-  return _extends.apply(this, arguments);
-}
-
-function _slicedToArray(arr, i) {
-  return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest();
-}
-
-function _toArray(arr) {
-  return _arrayWithHoles(arr) || _iterableToArray(arr) || _nonIterableRest();
-}
-
-function _arrayWithHoles(arr) {
-  if (Array.isArray(arr)) return arr;
-}
-
-function _iterableToArray(iter) {
-  if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter);
-}
-
-function _iterableToArrayLimit(arr, i) {
-  if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) {
-    return;
-  }
-
-  var _arr = [];
-  var _n = true;
-  var _d = false;
-  var _e = undefined;
-
-  try {
-    for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
-      _arr.push(_s.value);
-
-      if (i && _arr.length === i) break;
-    }
-  } catch (err) {
-    _d = true;
-    _e = err;
-  } finally {
-    try {
-      if (!_n && _i["return"] != null) _i["return"]();
-    } finally {
-      if (_d) throw _e;
-    }
-  }
-
-  return _arr;
-}
-
-function _nonIterableRest() {
-  throw new TypeError("Invalid attempt to destructure non-iterable instance");
-}
 
 var cache = {};
 var cacheLimit = 10000;
@@ -150,10 +87,13 @@ var useEffect = useEffect$1,
 
 var routeResourceDetectorHOC = function routeResourceDetectorHOC(DecoratedComponent) {
   var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {
-    shouldDetectResourceForAllRoutes: true
+    shouldDetectResourceForAllRoutes: true,
+    detectResourceInSequence: false
   };
   var componentName = DecoratedComponent.displayName || DecoratedComponent.name || 'Component';
   var isReactComponent = DecoratedComponent.prototype && DecoratedComponent.prototype.isReactComponent;
+  var shouldDetectResourceForAllRoutes = config.shouldDetectResourceForAllRoutes || true;
+  var detectResourceInSequence = config.detectResourceInSequence || false;
   var resourceConfigurations;
   var routeConfigurations;
 
@@ -182,35 +122,124 @@ var routeResourceDetectorHOC = function routeResourceDetectorHOC(DecoratedCompon
       return resourcesToBeDetected;
     };
 
-    var __detectResources = function __detectResources(currLocation, resources) {
-      resources.forEach(function (_ref5) {
-        var _ref6 = _slicedToArray(_ref5, 2),
-            pattern = _ref6[0],
-            configuration = _ref6[1];
+    var __detectResources =
+    /*#__PURE__*/
+    function () {
+      var _ref5 = _asyncToGenerator(
+      /*#__PURE__*/
+      _regeneratorRuntime.mark(function _callee(currLocation, resources, detectResourceInSequence) {
+        var _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, _step$value, pattern, configuration, _configuration$handle, handler, pathname, match;
 
-        var _configuration$handle = configuration.handler,
-            handler = _configuration$handle === void 0 ? noop : _configuration$handle;
-        var pathname = currLocation.pathname;
-        var match = matchPath(pathname, {
-          path: pattern,
-          start: false
-        });
+        return _regeneratorRuntime.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                _iteratorNormalCompletion = true;
+                _didIteratorError = false;
+                _iteratorError = undefined;
+                _context.prev = 3;
+                _iterator = resources[Symbol.iterator]();
 
-        if (match) {
-          handler(match.params, match.url, currLocation);
-        }
-      });
-    };
+              case 5:
+                if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
+                  _context.next = 21;
+                  break;
+                }
+
+                _step$value = _slicedToArray(_step.value, 2), pattern = _step$value[0], configuration = _step$value[1];
+                _configuration$handle = configuration.handler, handler = _configuration$handle === void 0 ? noop : _configuration$handle;
+                pathname = currLocation.pathname;
+                match = matchPath(pathname, {
+                  path: pattern,
+                  start: false
+                });
+
+                if (match) {
+                  _context.next = 12;
+                  break;
+                }
+
+                return _context.abrupt("continue", 18);
+
+              case 12:
+                if (!detectResourceInSequence) {
+                  _context.next = 17;
+                  break;
+                }
+
+                _context.next = 15;
+                return handler(match.params, match.url, currLocation);
+
+              case 15:
+                _context.next = 18;
+                break;
+
+              case 17:
+                handler(match.params, match.url, currLocation);
+
+              case 18:
+                _iteratorNormalCompletion = true;
+                _context.next = 5;
+                break;
+
+              case 21:
+                _context.next = 27;
+                break;
+
+              case 23:
+                _context.prev = 23;
+                _context.t0 = _context["catch"](3);
+                _didIteratorError = true;
+                _iteratorError = _context.t0;
+
+              case 27:
+                _context.prev = 27;
+                _context.prev = 28;
+
+                if (!_iteratorNormalCompletion && _iterator.return != null) {
+                  _iterator.return();
+                }
+
+              case 30:
+                _context.prev = 30;
+
+                if (!_didIteratorError) {
+                  _context.next = 33;
+                  break;
+                }
+
+                throw _iteratorError;
+
+              case 33:
+                return _context.finish(30);
+
+              case 34:
+                return _context.finish(27);
+
+              case 35:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee, null, [[3, 23, 27, 35], [28,, 30, 34]]);
+      }));
+
+      return function __detectResources(_x, _x2, _x3) {
+        return _ref5.apply(this, arguments);
+      };
+    }();
 
     var __triggerRouteHandlers = function __triggerRouteHandlers(currLocation) {
       var pathname = currLocation.pathname;
       var hasMatch = false;
 
       if (routeConfigurations) {
-        Object.entries(routeConfigurations).forEach(function (_ref7) {
-          var _ref8 = _slicedToArray(_ref7, 2),
-              pattern = _ref8[0],
-              configuration = _ref8[1];
+        var routeConfigs = Object.entries(routeConfigurations);
+
+        for (var _i = 0, _routeConfigs = routeConfigs; _i < _routeConfigs.length; _i++) {
+          var _routeConfigs$_i = _slicedToArray(_routeConfigs[_i], 2),
+              pattern = _routeConfigs$_i[0],
+              configuration = _routeConfigs$_i[1];
 
           var _configuration$handle2 = configuration.handler,
               handler = _configuration$handle2 === void 0 ? noop : _configuration$handle2,
@@ -221,29 +250,36 @@ var routeResourceDetectorHOC = function routeResourceDetectorHOC(DecoratedCompon
               _configuration$blackL = configuration.blackList,
               blackList = _configuration$blackL === void 0 ? [] : _configuration$blackL,
               _configuration$should = configuration.shouldDetectResource,
-              shouldDetectResource = _configuration$should === void 0 ? true : _configuration$should;
+              shouldDetectResource = _configuration$should === void 0 ? true : _configuration$should,
+              _configuration$detect = configuration.detectResourceInSequence,
+              _detectResourceInSequence = _configuration$detect === void 0 ? false : _configuration$detect;
+
           var match = matchPath(pathname, {
             path: pattern,
             exact: exact
           });
 
-          if (match) {
-            hasMatch = true;
-            handler(match.params, match.url, currLocation);
-
-            if (shouldDetectResource) {
-              var resourcesToBeDetected = __getResourcesToBeDetected(whiteList, blackList);
-
-              __detectResources(currLocation, resourcesToBeDetected);
-            }
+          if (!match) {
+            continue;
           }
-        });
+
+          hasMatch = true;
+          handler(match.params, match.url, currLocation);
+
+          if (!shouldDetectResource) {
+            continue;
+          }
+
+          var resourcesToBeDetected = __getResourcesToBeDetected(whiteList, blackList);
+
+          __detectResources(currLocation, resourcesToBeDetected, _detectResourceInSequence);
+        }
       }
 
-      if (!hasMatch && config.shouldDetectResourceForAllRoutes) {
-        var resourcesToBeDetected = __getResourcesToBeDetected();
+      if (!hasMatch && shouldDetectResourceForAllRoutes) {
+        var _resourcesToBeDetected = __getResourcesToBeDetected();
 
-        __detectResources(currLocation, resourcesToBeDetected);
+        __detectResources(currLocation, _resourcesToBeDetected, detectResourceInSequence);
       }
     };
 
@@ -277,9 +313,8 @@ var routeResourceDetectorHOC = function routeResourceDetectorHOC(DecoratedCompon
   };
 
   return onRouteChangedHOC(ResourceDetectorComponent, {
-    mounted: true,
-    handleRouteChanged: ResourceDetectorComponent.handleRouteChanged
+    mounted: true
   });
-}; // class ResourceDetectorComponent1 extends React.PureComponent {
+};
 
 export default routeResourceDetectorHOC;
