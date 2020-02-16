@@ -42,6 +42,7 @@ class StudentInfo extends React.PureComponent {
   this.routeConfigurations = {
     '/class/:classId/student/:studentId': {
       handler: (matches, path, location) => {},
+      deselect: (matches, path, prevLocation) => {},
       exact: true,
       shouldDetectResource: true,
       whiteList: ['/student/:studentId'],
@@ -84,6 +85,7 @@ export default routeResourceDetectorHOC(StudentInfo)
 | -------------- | --------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `shouldDetectResourceForAllRoutes` | `boolean` | `true` | If `true`, the resources lies in all routes will be detected by default. |
 | `detectResourceInSequence` | `boolean` | `false` | If `true`, the resources will be detected in sequent, it will stop detecting resources when error occurs. See more in example. |
+| `deselectResourceBeforeRouteChanged` | `boolean` | `false` | If `true`, resources selected in the previous route will be deselected. See more in example. |
 
 ## Resource Configuration
 - The `resourceConfigurations` is a dictionary of resource detection configurations. The key is a resource pattern, and the value is a resource detection configuration for this resource.
@@ -108,6 +110,7 @@ A route pattern can be either a `string` or a `regexp` object.
 | Name           | Type      | Default | Description                                                                                                                                                                                                                             |
 | -------------- | --------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `handler` | `function` |  | Same as the resource configuration above. |
+| `deselect` | `function` |  | (matches, path, prevLocation) => {}, if `deselectResourceBeforeRouteChanged` is true, this function will be triggered when there is a matched route of previous location in routeConfigurations before route changes. `matches` is the map of param name and value lies in the pattern, `path` is the exact match result of the pattern, `prevLocation` is the previous location object. |
 | `exact` | `boolean` | `true` | If `true`, the handler function will be triggered when the route completely matches the route pattern. |
 | `shouldDetectResource` | `boolean` | `true` | If `true`, the resources lies in the route will be detected. |
 | `whiteList` | `array` |  | Array of resource patterns. Resources in the whiteList will be detected. |

@@ -57,11 +57,17 @@ const RoutesComp = () => {
       handler: () => {
         console.log('student route')
       },
+      deselect: () => {
+        console.log('deselect student route')
+      },
       blackList: ['class/:classId']
     },
     '/school/class/:classId/teacher/:teacherId': {
       handler: () => {
         console.log('teacher route')
+      },
+      deselect: () => {
+        console.log('deselect teacher route')
       }
     }
   }
@@ -85,7 +91,7 @@ const RoutesComp = () => {
 
 class App extends React.PureComponent {
   render () {
-    const Detector = routeResourceDetectorHOC(RoutesComp, { detectResourceInSequence: true })
+    const Detector = routeResourceDetectorHOC(RoutesComp, { detectResourceInSequence: true, deselectResourceBeforeRouteChanged: true })
 
     return (
       <BrowserRouter>

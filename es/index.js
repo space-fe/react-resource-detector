@@ -92,12 +92,14 @@ var useEffect = useEffect$1,
 var routeResourceDetectorHOC = function routeResourceDetectorHOC(DecoratedComponent) {
   var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {
     shouldDetectResourceForAllRoutes: true,
-    detectResourceInSequence: false
+    detectResourceInSequence: false,
+    deselectResourceBeforeRouteChanged: false
   };
   var componentName = DecoratedComponent.displayName || DecoratedComponent.name || 'Component';
   var isReactComponent = DecoratedComponent.prototype && DecoratedComponent.prototype.isReactComponent;
   var shouldDetectResourceForAllRoutes = configDefaulter(config.shouldDetectResourceForAllRoutes, true);
   var detectResourceInSequence = configDefaulter(config.detectResourceInSequence, false);
+  var deselectResourceBeforeRouteChanged = configDefaulter(config.deselectResourceBeforeRouteChanged, false);
   var resourceConfigurations;
   var routeConfigurations;
 
@@ -284,9 +286,103 @@ var routeResourceDetectorHOC = function routeResourceDetectorHOC(DecoratedCompon
       }
     };
 
-    ResourceDetectorComponent.handleRouteChanged = function (_, currLocation) {
-      __triggerRouteHandlers(currLocation);
-    };
+    var __beforeRouteChangedHandler =
+    /*#__PURE__*/
+    function () {
+      var _ref6 = _asyncToGenerator(
+      /*#__PURE__*/
+      _regeneratorRuntime.mark(function _callee2(prevLocation) {
+        var pathname, routeConfigs, _i2, _routeConfigs2, _routeConfigs2$_i, pattern, configuration, _configuration$desele, deselect, _configuration$exact2, exact, match;
+
+        return _regeneratorRuntime.wrap(function _callee2$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                pathname = prevLocation.pathname;
+
+                if (!routeConfigurations) {
+                  _context2.next = 15;
+                  break;
+                }
+
+                routeConfigs = Object.entries(routeConfigurations);
+                _i2 = 0, _routeConfigs2 = routeConfigs;
+
+              case 4:
+                if (!(_i2 < _routeConfigs2.length)) {
+                  _context2.next = 15;
+                  break;
+                }
+
+                _routeConfigs2$_i = _slicedToArray(_routeConfigs2[_i2], 2), pattern = _routeConfigs2$_i[0], configuration = _routeConfigs2$_i[1];
+                _configuration$desele = configuration.deselect, deselect = _configuration$desele === void 0 ? noop : _configuration$desele, _configuration$exact2 = configuration.exact, exact = _configuration$exact2 === void 0 ? true : _configuration$exact2;
+                match = matchPath(pathname, {
+                  path: pattern,
+                  exact: exact
+                });
+
+                if (match) {
+                  _context2.next = 10;
+                  break;
+                }
+
+                return _context2.abrupt("continue", 12);
+
+              case 10:
+                _context2.next = 12;
+                return deselect(match.params, match.url, prevLocation);
+
+              case 12:
+                _i2++;
+                _context2.next = 4;
+                break;
+
+              case 15:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, _callee2);
+      }));
+
+      return function __beforeRouteChangedHandler(_x3) {
+        return _ref6.apply(this, arguments);
+      };
+    }();
+
+    ResourceDetectorComponent.handleRouteChanged =
+    /*#__PURE__*/
+    function () {
+      var _ref7 = _asyncToGenerator(
+      /*#__PURE__*/
+      _regeneratorRuntime.mark(function _callee3(prevLocation, currLocation) {
+        return _regeneratorRuntime.wrap(function _callee3$(_context3) {
+          while (1) {
+            switch (_context3.prev = _context3.next) {
+              case 0:
+                if (!(prevLocation && deselectResourceBeforeRouteChanged)) {
+                  _context3.next = 3;
+                  break;
+                }
+
+                _context3.next = 3;
+                return __beforeRouteChangedHandler(prevLocation);
+
+              case 3:
+                __triggerRouteHandlers(currLocation);
+
+              case 4:
+              case "end":
+                return _context3.stop();
+            }
+          }
+        }, _callee3);
+      }));
+
+      return function (_x4, _x5) {
+        return _ref7.apply(this, arguments);
+      };
+    }();
 
     useEffect(function () {
       if (isReactComponent) {

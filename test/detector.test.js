@@ -20,7 +20,7 @@ cases('test routeResourceDetectorHOC', opts => {
   } = opts
 
   const [classResourceCallTimes, studentResourceCallTimes] = resourceHandlerTriggerTimes
-  const { detectResourceInSequence } = globalConfig
+  const { detectResourceInSequence, deselectResourceBeforeRouteChanged } = globalConfig
 
   let classFn = jest.fn()
   let studentFn = jest.fn()
@@ -58,7 +58,7 @@ cases('test routeResourceDetectorHOC', opts => {
   }
 
   // DetectorComp is React Element `ResourceDetectorComponent`
-  const DetectorComp = routeResourceDetectorHOC(isReactComponent ? Component : School, { detectResourceInSequence })
+  const DetectorComp = routeResourceDetectorHOC(isReactComponent ? Component : School, { ...globalConfig })
 
   // Execute `DetectorComp` component once, in order to assign value to `DetectorComp.handleRouteChanged`
   mount(<DetectorComp />)
@@ -71,7 +71,7 @@ cases('test routeResourceDetectorHOC', opts => {
   if (!detectResourceInSequence) {
     expect(classFn).toHaveBeenCalledTimes(classResourceCallTimes)
     expect(studentFn).toHaveBeenCalledTimes(studentResourceCallTimes)
-  } else {
+  } else if (detectResourceInSequence && !deselectResourceBeforeRouteChanged) {
     expect(classFn).toHaveReturned()
     // expect(studentFn).toHaveReturned()
   }
@@ -262,6 +262,24 @@ cases('test routeResourceDetectorHOC', opts => {
     routeHandlerTriggerTimes: [1],
     globalConfig: {
       detectResourceInSequence: true
+    }
+  },
+  {
+    name: 'If deselectResourceBeforeRouteChanged is true',
+    routeConfigurations: {
+      '/school/class/:classId/student/:studentId': {
+        handler: jest.fn()
+      },
+      '/school/class/:classId': {
+        handler: jest.fn(),
+        deselect: jest.fn()
+      }
+    },
+    locationChangingPath: [l2, l3],
+    routeHandlerTriggerTimes: [0, 1],
+    globalConfig: {
+      detectResourceInSequence: true,
+      deselectResourceBeforeRouteChanged: true
     }
   }
 ])

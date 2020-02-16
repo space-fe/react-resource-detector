@@ -6,12 +6,20 @@ import { configDefaulter } from './helpers/config'
 const noop = () => {}
 const { useEffect, useRef } = React
 
-const routeResourceDetectorHOC = (DecoratedComponent, config = { shouldDetectResourceForAllRoutes: true, detectResourceInSequence: false }) => {
+const routeResourceDetectorHOC = (
+  DecoratedComponent,
+  config = {
+    shouldDetectResourceForAllRoutes: true,
+    detectResourceInSequence: false,
+    deselectResourceBeforeRouteChanged: false
+  }
+) => {
   const componentName = DecoratedComponent.displayName || DecoratedComponent.name || 'Component'
   const isReactComponent = DecoratedComponent.prototype && DecoratedComponent.prototype.isReactComponent
 
   const shouldDetectResourceForAllRoutes = configDefaulter(config.shouldDetectResourceForAllRoutes, true)
   const detectResourceInSequence = configDefaulter(config.detectResourceInSequence, false)
+  const deselectResourceBeforeRouteChanged = configDefaulter(config.deselectResourceBeforeRouteChanged, false)
 
   let resourceConfigurations
   let routeConfigurations
@@ -88,7 +96,32 @@ const routeResourceDetectorHOC = (DecoratedComponent, config = { shouldDetectRes
       }
     }
 
-    ResourceDetectorComponent.handleRouteChanged = (_, currLocation) => {
+    const __beforeRouteChangedHandler = async (prevLocation) => {
+      const { pathname } = prevLocation
+
+      if (routeConfigurations) {
+        const routeConfigs = Object.entries(routeConfigurations)
+        for (const [pattern, configuration] of routeConfigs) {
+          const {
+            deselect = noop,
+            exact = true
+          } = configuration
+          const match = matchPath(pathname, { path: pattern, exact })
+
+          if (!match) {
+            continue
+          }
+
+          await deselect(match.params, match.url, prevLocation)
+        }
+      }
+    }
+
+    ResourceDetectorComponent.handleRouteChanged = async (prevLocation, currLocation) => {
+      if (prevLocation && deselectResourceBeforeRouteChanged) {
+        await __beforeRouteChangedHandler(prevLocation)
+      }
+
       __triggerRouteHandlers(currLocation)
     }
 
