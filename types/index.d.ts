@@ -3,7 +3,8 @@ import * as React from 'react'
 declare function routeResourceDetectorHOC<T>(
   DecoratedComponent: React.ComponentType,
   config: {
-    shouldDetectResourceForAllRoutes?: boolean
+    shouldDetectResourceForAllRoutes?: boolean,
+    detectResourceInSequence?: boolean
   }
 ): React.ComponentType<T>
 

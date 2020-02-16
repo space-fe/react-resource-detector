@@ -14,14 +14,21 @@ cases('test routeResourceDetectorHOC', opts => {
     isReactComponent,
     routeConfigurations,
     locationChangingPath,
-    resourceHandlerTriggerTimes,
-    routeHandlerTriggerTimes
+    resourceHandlerTriggerTimes = [],
+    routeHandlerTriggerTimes,
+    globalConfig = {}
   } = opts
 
   const [classResourceCallTimes, studentResourceCallTimes] = resourceHandlerTriggerTimes
+  const { detectResourceInSequence } = globalConfig
 
-  const classFn = jest.fn()
-  const studentFn = jest.fn()
+  let classFn = jest.fn()
+  let studentFn = jest.fn()
+
+  if (detectResourceInSequence) {
+    classFn = jest.fn().mockResolvedValue('class')
+    studentFn = jest.fn().mockResolvedValue('student')
+  }
 
   const resourceConfigurations = {
     '/class/:classId': {
@@ -51,7 +58,7 @@ cases('test routeResourceDetectorHOC', opts => {
   }
 
   // DetectorComp is React Element `ResourceDetectorComponent`
-  const DetectorComp = routeResourceDetectorHOC(isReactComponent ? Component : School)
+  const DetectorComp = routeResourceDetectorHOC(isReactComponent ? Component : School, { detectResourceInSequence })
 
   // Execute `DetectorComp` component once, in order to assign value to `DetectorComp.handleRouteChanged`
   mount(<DetectorComp />)
@@ -61,8 +68,13 @@ cases('test routeResourceDetectorHOC', opts => {
     return currLocation
   }, null)
 
-  expect(classFn).toHaveBeenCalledTimes(classResourceCallTimes)
-  expect(studentFn).toHaveBeenCalledTimes(studentResourceCallTimes)
+  if (!detectResourceInSequence) {
+    expect(classFn).toHaveBeenCalledTimes(classResourceCallTimes)
+    expect(studentFn).toHaveBeenCalledTimes(studentResourceCallTimes)
+  } else {
+    expect(classFn).toHaveReturned()
+    // expect(studentFn).toHaveReturned()
+  }
 
   routeConfigurations && Object.entries(routeConfigurations).forEach(([pattern, configuration], index) => {
     const { handler } = configuration
@@ -238,5 +250,18 @@ cases('test routeResourceDetectorHOC', opts => {
     locationChangingPath: [l4, l5, l2],
     resourceHandlerTriggerTimes: [3, 2],
     routeHandlerTriggerTimes: [1]
+  },
+  {
+    name: 'If routeConfigurations and globalConfig are provided, and the route has matched resources and matched route pattern',
+    routeConfigurations: {
+      '/school/class/:classId/student/:studentId': {
+        handler: jest.fn()
+      }
+    },
+    locationChangingPath: [l3],
+    routeHandlerTriggerTimes: [1],
+    globalConfig: {
+      detectResourceInSequence: true
+    }
   }
 ])

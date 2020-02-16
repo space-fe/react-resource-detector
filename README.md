@@ -57,7 +57,8 @@ class StudentInfo extends React.PureComponent {
 }
 
 export default routeResourceDetectorHOC(StudentInfo, {
-  shouldDetectResourceForAllRoutes: false
+  shouldDetectResourceForAllRoutes: false,
+  detectResourceInSequence: true
 })
 ```
 
@@ -82,6 +83,7 @@ export default routeResourceDetectorHOC(StudentInfo)
 | Name           | Type      | Default | Description                                                                                                                                                                                                                             |
 | -------------- | --------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `shouldDetectResourceForAllRoutes` | `boolean` | `true` | If `true`, the resources lies in all routes will be detected by default. |
+| `detectResourceInSequence` | `boolean` | `false` | If `true`, the resources will be detected in sequent, it will stop detecting resources when error occurs. See more in example. |
 
 ## Resource Configuration
 - The `resourceConfigurations` is a dictionary of resource detection configurations. The key is a resource pattern, and the value is a resource detection configuration for this resource.

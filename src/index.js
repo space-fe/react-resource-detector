@@ -1,6 +1,7 @@
 import * as React from 'react'
 import onRouteChangedHOC from 'react-onroutechanged'
 import matchPath from './helpers/matchPath'
+import { configDefaulter } from './helpers/config'
 
 const noop = () => {}
 const { useEffect, useRef } = React
@@ -9,8 +10,8 @@ const routeResourceDetectorHOC = (DecoratedComponent, config = { shouldDetectRes
   const componentName = DecoratedComponent.displayName || DecoratedComponent.name || 'Component'
   const isReactComponent = DecoratedComponent.prototype && DecoratedComponent.prototype.isReactComponent
 
-  const shouldDetectResourceForAllRoutes = config.shouldDetectResourceForAllRoutes || true
-  const detectResourceInSequence = config.detectResourceInSequence || false
+  const shouldDetectResourceForAllRoutes = configDefaulter(config.shouldDetectResourceForAllRoutes, true)
+  const detectResourceInSequence = configDefaulter(config.detectResourceInSequence, false)
 
   let resourceConfigurations
   let routeConfigurations

@@ -80,6 +80,10 @@ function matchPath(pathname) {
   }, null);
 }
 
+var configDefaulter = function configDefaulter(value, defaultValue) {
+  return value === undefined ? defaultValue : value;
+};
+
 var noop = function noop() {};
 
 var useEffect = useEffect$1,
@@ -92,8 +96,8 @@ var routeResourceDetectorHOC = function routeResourceDetectorHOC(DecoratedCompon
   };
   var componentName = DecoratedComponent.displayName || DecoratedComponent.name || 'Component';
   var isReactComponent = DecoratedComponent.prototype && DecoratedComponent.prototype.isReactComponent;
-  var shouldDetectResourceForAllRoutes = config.shouldDetectResourceForAllRoutes || true;
-  var detectResourceInSequence = config.detectResourceInSequence || false;
+  var shouldDetectResourceForAllRoutes = configDefaulter(config.shouldDetectResourceForAllRoutes, true);
+  var detectResourceInSequence = configDefaulter(config.detectResourceInSequence, false);
   var resourceConfigurations;
   var routeConfigurations;
 
