@@ -31,7 +31,7 @@ const routeResourceDetectorHOC = (DecoratedComponent, config = { shouldDetectRes
       return resourcesToBeDetected
     }
 
-    const __detectResources = async (currLocation, resources, detectResourceInSequence) => {
+    const __detectResources = async (currLocation, resources) => {
       for (const [pattern, configuration] of resources) {
         const { handler = noop } = configuration
         const { pathname } = currLocation
@@ -61,8 +61,7 @@ const routeResourceDetectorHOC = (DecoratedComponent, config = { shouldDetectRes
             exact = true,
             whiteList = [],
             blackList = [],
-            shouldDetectResource = true,
-            detectResourceInSequence = false
+            shouldDetectResource = true
           } = configuration
           const match = matchPath(pathname, { path: pattern, exact })
 
@@ -78,13 +77,13 @@ const routeResourceDetectorHOC = (DecoratedComponent, config = { shouldDetectRes
           }
 
           const resourcesToBeDetected = __getResourcesToBeDetected(whiteList, blackList)
-          __detectResources(currLocation, resourcesToBeDetected, detectResourceInSequence)
+          __detectResources(currLocation, resourcesToBeDetected)
         }
       }
 
       if (!hasMatch && shouldDetectResourceForAllRoutes) {
         const resourcesToBeDetected = __getResourcesToBeDetected()
-        __detectResources(currLocation, resourcesToBeDetected, detectResourceInSequence)
+        __detectResources(currLocation, resourcesToBeDetected)
       }
     }
 

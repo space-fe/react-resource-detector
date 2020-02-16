@@ -127,7 +127,7 @@ var routeResourceDetectorHOC = function routeResourceDetectorHOC(DecoratedCompon
     function () {
       var _ref5 = _asyncToGenerator(
       /*#__PURE__*/
-      _regeneratorRuntime.mark(function _callee(currLocation, resources, detectResourceInSequence) {
+      _regeneratorRuntime.mark(function _callee(currLocation, resources) {
         var _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, _step$value, pattern, configuration, _configuration$handle, handler, pathname, match;
 
         return _regeneratorRuntime.wrap(function _callee$(_context) {
@@ -224,7 +224,7 @@ var routeResourceDetectorHOC = function routeResourceDetectorHOC(DecoratedCompon
         }, _callee, null, [[3, 23, 27, 35], [28,, 30, 34]]);
       }));
 
-      return function __detectResources(_x, _x2, _x3) {
+      return function __detectResources(_x, _x2) {
         return _ref5.apply(this, arguments);
       };
     }();
@@ -250,10 +250,7 @@ var routeResourceDetectorHOC = function routeResourceDetectorHOC(DecoratedCompon
               _configuration$blackL = configuration.blackList,
               blackList = _configuration$blackL === void 0 ? [] : _configuration$blackL,
               _configuration$should = configuration.shouldDetectResource,
-              shouldDetectResource = _configuration$should === void 0 ? true : _configuration$should,
-              _configuration$detect = configuration.detectResourceInSequence,
-              _detectResourceInSequence = _configuration$detect === void 0 ? false : _configuration$detect;
-
+              shouldDetectResource = _configuration$should === void 0 ? true : _configuration$should;
           var match = matchPath(pathname, {
             path: pattern,
             exact: exact
@@ -272,14 +269,14 @@ var routeResourceDetectorHOC = function routeResourceDetectorHOC(DecoratedCompon
 
           var resourcesToBeDetected = __getResourcesToBeDetected(whiteList, blackList);
 
-          __detectResources(currLocation, resourcesToBeDetected, _detectResourceInSequence);
+          __detectResources(currLocation, resourcesToBeDetected);
         }
       }
 
       if (!hasMatch && shouldDetectResourceForAllRoutes) {
         var _resourcesToBeDetected = __getResourcesToBeDetected();
 
-        __detectResources(currLocation, _resourcesToBeDetected, detectResourceInSequence);
+        __detectResources(currLocation, _resourcesToBeDetected);
       }
     };
 
