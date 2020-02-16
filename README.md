@@ -24,7 +24,8 @@ import routeResourceDetectorHOC from 'react-resource-detector'
 
 class StudentInfo extends React.PureComponent {
   this.resourceConfigurations = {
-    '/class/:classId': {
+    'class/:classId': {
+      // if detect resources in sequence, handler should return a promise.
       handler: (matches, path, location) => {
         // ...detect resource
         /*
@@ -34,7 +35,7 @@ class StudentInfo extends React.PureComponent {
          */
       }
     },
-    '/student/:studentId': {
+    'student/:studentId': {
       handler: (matches, path, location) => {}
     }
   }
@@ -45,8 +46,8 @@ class StudentInfo extends React.PureComponent {
       deselect: (matches, path, prevLocation) => {},
       exact: true,
       shouldDetectResource: true,
-      whiteList: ['/student/:studentId'],
-      blackList: ['/class/:classId']
+      whiteList: ['student/:studentId'],
+      blackList: ['class/:classId']
     },
   }
 
@@ -59,7 +60,8 @@ class StudentInfo extends React.PureComponent {
 
 export default routeResourceDetectorHOC(StudentInfo, {
   shouldDetectResourceForAllRoutes: false,
-  detectResourceInSequence: true
+  detectResourceInSequence: true,
+  deselectResourceBeforeRouteChanged: true
 })
 ```
 
