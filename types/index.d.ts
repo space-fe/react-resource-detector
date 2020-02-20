@@ -3,7 +3,7 @@ import * as React from 'react'
 export interface IConfig {
   shouldDetectResourceForAllRoutes?: boolean,
   detectResourceInSequence?: boolean,
-  deselectResourceBeforeRouteChanged?: boolean
+  deselectResources?: boolean
 }
 
 declare function routeResourceDetectorHOC<T>(

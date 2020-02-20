@@ -93,13 +93,13 @@ var routeResourceDetectorHOC = function routeResourceDetectorHOC(DecoratedCompon
   var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {
     shouldDetectResourceForAllRoutes: true,
     detectResourceInSequence: false,
-    deselectResourceBeforeRouteChanged: false
+    deselectResources: false
   };
   var componentName = DecoratedComponent.displayName || DecoratedComponent.name || 'Component';
   var isReactComponent = DecoratedComponent.prototype && DecoratedComponent.prototype.isReactComponent;
   var shouldDetectResourceForAllRoutes = configDefaulter(config.shouldDetectResourceForAllRoutes, true);
   var detectResourceInSequence = configDefaulter(config.detectResourceInSequence, false);
-  var deselectResourceBeforeRouteChanged = configDefaulter(config.deselectResourceBeforeRouteChanged, false);
+  var deselectResources = configDefaulter(config.deselectResources, false);
   var resourceConfigurations;
   var routeConfigurations;
 
@@ -360,7 +360,7 @@ var routeResourceDetectorHOC = function routeResourceDetectorHOC(DecoratedCompon
           while (1) {
             switch (_context3.prev = _context3.next) {
               case 0:
-                if (!(prevLocation && deselectResourceBeforeRouteChanged)) {
+                if (!(prevLocation && deselectResources)) {
                   _context3.next = 3;
                   break;
                 }

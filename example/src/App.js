@@ -91,7 +91,7 @@ const RoutesComp = () => {
 
 class App extends React.PureComponent {
   render () {
-    const Detector = routeResourceDetectorHOC(RoutesComp, { detectResourceInSequence: true, deselectResourceBeforeRouteChanged: true })
+    const Detector = routeResourceDetectorHOC(RoutesComp, { detectResourceInSequence: true, deselectResources: true })
 
     return (
       <BrowserRouter>

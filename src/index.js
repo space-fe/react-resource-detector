@@ -11,7 +11,7 @@ const routeResourceDetectorHOC = (
   config = {
     shouldDetectResourceForAllRoutes: true,
     detectResourceInSequence: false,
-    deselectResourceBeforeRouteChanged: false
+    deselectResources: false
   }
 ) => {
   const componentName = DecoratedComponent.displayName || DecoratedComponent.name || 'Component'
@@ -19,7 +19,7 @@ const routeResourceDetectorHOC = (
 
   const shouldDetectResourceForAllRoutes = configDefaulter(config.shouldDetectResourceForAllRoutes, true)
   const detectResourceInSequence = configDefaulter(config.detectResourceInSequence, false)
-  const deselectResourceBeforeRouteChanged = configDefaulter(config.deselectResourceBeforeRouteChanged, false)
+  const deselectResources = configDefaulter(config.deselectResources, false)
 
   let resourceConfigurations
   let routeConfigurations
@@ -118,7 +118,7 @@ const routeResourceDetectorHOC = (
     }
 
     ResourceDetectorComponent.handleRouteChanged = async (prevLocation, currLocation) => {
-      if (prevLocation && deselectResourceBeforeRouteChanged) {
+      if (prevLocation && deselectResources) {
         await __beforeRouteChangedHandler(prevLocation)
       }
 
