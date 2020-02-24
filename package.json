@@ -1,6 +1,6 @@
 {
   "name": "react-resource-detector",
-  "version": "0.0.4",
+  "version": "1.0.0",
   "description": "A resource detector for React components",
   "main": "es/index.js",
   "module": "es/index.js",
@@ -21,7 +21,8 @@
     "build": "rollup -c",
     "release:patch": "yarn build  && yarn version --patch && yarn publish && git push --follow-tags",
     "release:minor": "yarn build && yarn version --minor && yarn publish && git push --follow-tags",
-    "release:major": "yarn build && yarn version --major && yarn publish && git push --follow-tags"
+    "release:major": "yarn build && yarn version --major && yarn publish && git push --follow-tags",
+    "example": "webpack-dev-server --mode development --config example/webpack.config.js"
   },
   "pre-commit": [
     "precommit-msg",
@@ -52,11 +53,17 @@
   "devDependencies": {
     "@babel/core": "^7.4.5",
     "@babel/plugin-proposal-class-properties": "^7.4.4",
+    "@babel/plugin-transform-runtime": "^7.7.6",
+    "@babel/polyfill": "^7.7.0",
     "@babel/preset-env": "^7.4.5",
     "@babel/preset-react": "^7.0.0",
     "@types/react": "^16.8.19",
     "babel-eslint": "^10.0.1",
     "babel-jest": "^24.8.0",
+    "babel-loader": "^8.0.6",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-react": "^6.24.1",
+    "babel-preset-stage-2": "^6.24.1",
     "enzyme": "^3.10.0",
     "enzyme-adapter-react-16": "^1.14.0",
     "eslint": "^5.16.0",
@@ -66,23 +73,30 @@
     "eslint-plugin-promise": "^4.1.1",
     "eslint-plugin-react": "^7.13.0",
     "eslint-plugin-standard": "^4.0.0",
+    "html-webpack-plugin": "^3.2.0",
     "jest": "^24.8.0",
     "jest-environment-enzyme": "^7.0.2",
     "jest-enzyme": "^7.0.2",
     "jest-in-case": "^1.0.2",
     "pre-commit": "^1.2.2",
-    "react": "^16.8.6",
-    "react-dom": "^16.8.6",
-    "react-router-dom": "^5.0.1",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0",
+    "react-router-dom": "^5.1.2",
     "rollup": "^1.15.0",
     "rollup-plugin-babel": "^4.3.2",
-    "typescript": "^3.5.1"
+    "typescript": "^3.5.1",
+    "webpack": "^4.41.5",
+    "webpack-cli": "^3.3.10",
+    "webpack-dev-server": "^3.10.1"
   },
   "peerDependencies": {
-    "react": "^16.8.6"
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "react-router": "^5.0.0",
+    "react-router-dom": "^5.0.0"
   },
   "dependencies": {
     "path-to-regexp": "^3.0.0",
-    "react-onroutechanged": "^1.0.0-beta.1"
+    "react-onroutechanged": "^1.0.3"
   }
 }

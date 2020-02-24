@@ -1,20 +1,33 @@
 import * as React from 'react'
 import onRouteChangedHOC from 'react-onroutechanged'
 import matchPath from './helpers/matchPath'
+import { configDefaulter } from './helpers/config'
 
 const noop = () => {}
+const { useEffect, useRef } = React
 
-const routeResourceDetectorHOC = (DecoratedComponent, config = { shouldDetectResourceForAllRoutes: true }) => {
+const routeResourceDetectorHOC = (
+  DecoratedComponent,
+  config = {
+    shouldDetectResourceForAllRoutes: true,
+    detectResourceInSequence: false,
+    deselectResources: false
+  }
+) => {
   const componentName = DecoratedComponent.displayName || DecoratedComponent.name || 'Component'
   const isReactComponent = DecoratedComponent.prototype && DecoratedComponent.prototype.isReactComponent
+
+  const shouldDetectResourceForAllRoutes = configDefaulter(config.shouldDetectResourceForAllRoutes, true)
+  const detectResourceInSequence = configDefaulter(config.detectResourceInSequence, false)
+  const deselectResources = configDefaulter(config.deselectResources, false)
 
   let resourceConfigurations
   let routeConfigurations
 
-  class ResourceDetectorComponent extends React.PureComponent {
-    static displayName = `RouteResourceDetector(${componentName})`
+  const ResourceDetectorComponent = (props) => {
+    const instanceRef = useRef()
 
-    __getResourcesToBeDetected = (whiteList = [], blackList = []) => {
+    const __getResourcesToBeDetected = (whiteList = [], blackList = []) => {
       let resourcesToBeDetected = Object
         .entries(resourceConfigurations)
         .filter(([pattern]) => !blackList.includes(pattern))
@@ -27,54 +40,95 @@ const routeResourceDetectorHOC = (DecoratedComponent, config = { shouldDetectRes
       return resourcesToBeDetected
     }
 
-    __detectResources = (currLocation, resources) => {
-      resources.forEach(([pattern, configuration]) => {
+    const __detectResources = async (currLocation, resources) => {
+      for (const [pattern, configuration] of resources) {
         const { handler = noop } = configuration
         const { pathname } = currLocation
         const match = matchPath(pathname, { path: pattern, start: false })
 
-        if (match) {
+        if (!match) {
+          continue
+        }
+
+        if (detectResourceInSequence) {
+          await handler(match.params, match.url, currLocation)
+        } else {
           handler(match.params, match.url, currLocation)
         }
-      })
+      }
     }
 
-    __triggerRouteHandlers = (currLocation) => {
+    const __triggerRouteHandlers = (currLocation) => {
       const { pathname } = currLocation
       let hasMatch = false
 
       if (routeConfigurations) {
-        Object.entries(routeConfigurations)
-          .forEach(([pattern, configuration]) => {
-            const { handler = noop, exact = true, whiteList = [], blackList = [], shouldDetectResource = true } = configuration
-            const match = matchPath(pathname, { path: pattern, exact })
+        const routeConfigs = Object.entries(routeConfigurations)
+        for (const [pattern, configuration] of routeConfigs) {
+          const {
+            handler = noop,
+            exact = true,
+            whiteList = [],
+            blackList = [],
+            shouldDetectResource = true
+          } = configuration
+          const match = matchPath(pathname, { path: pattern, exact })
 
-            if (match) {
-              hasMatch = true
-              handler(match.params, match.url, currLocation)
+          if (!match) {
+            continue
+          }
 
-              if (shouldDetectResource) {
-                const resourcesToBeDetected = this.__getResourcesToBeDetected(whiteList, blackList)
-                this.__detectResources(currLocation, resourcesToBeDetected)
-              }
-            }
-          })
+          hasMatch = true
+          handler(match.params, match.url, currLocation)
+
+          if (!shouldDetectResource) {
+            continue
+          }
+
+          const resourcesToBeDetected = __getResourcesToBeDetected(whiteList, blackList)
+          __detectResources(currLocation, resourcesToBeDetected)
+        }
       }
 
-      if (!hasMatch && config.shouldDetectResourceForAllRoutes) {
-        const resourcesToBeDetected = this.__getResourcesToBeDetected()
-        this.__detectResources(currLocation, resourcesToBeDetected)
+      if (!hasMatch && shouldDetectResourceForAllRoutes) {
+        const resourcesToBeDetected = __getResourcesToBeDetected()
+        __detectResources(currLocation, resourcesToBeDetected)
       }
     }
 
-    handleRouteChanged = (_, currLocation) => {
-      this.__triggerRouteHandlers(currLocation)
+    const __beforeRouteChangedHandler = async (prevLocation) => {
+      const { pathname } = prevLocation
+
+      if (routeConfigurations) {
+        const routeConfigs = Object.entries(routeConfigurations)
+        for (const [pattern, configuration] of routeConfigs) {
+          const {
+            deselect = noop,
+            exact = true
+          } = configuration
+          const match = matchPath(pathname, { path: pattern, exact })
+
+          if (!match) {
+            continue
+          }
+
+          await deselect(match.params, match.url, prevLocation)
+        }
+      }
     }
 
-    componentDidMount () {
+    ResourceDetectorComponent.handleRouteChanged = async (prevLocation, currLocation) => {
+      if (prevLocation && deselectResources) {
+        await __beforeRouteChangedHandler(prevLocation)
+      }
+
+      __triggerRouteHandlers(currLocation)
+    }
+
+    useEffect(() => {
       if (isReactComponent) {
-        resourceConfigurations = this.instanceRef.resourceConfigurations
-        routeConfigurations = this.instanceRef.routeConfigurations
+        resourceConfigurations = instanceRef.current.resourceConfigurations
+        routeConfigurations = instanceRef.current.routeConfigurations
       } else {
         resourceConfigurations = DecoratedComponent.resourceConfigurations
         routeConfigurations = DecoratedComponent.routeConfigurations
@@ -83,19 +137,15 @@ const routeResourceDetectorHOC = (DecoratedComponent, config = { shouldDetectRes
       if (!resourceConfigurations || !Object.keys(resourceConfigurations).length) {
         throw new Error(`The resourceConfigurations of ${componentName} must be provided!`)
       }
+    }, [])
+
+    const { ...allProps } = props
+
+    if (isReactComponent) {
+      allProps.ref = ref => { instanceRef.current = ref }
     }
 
-    render () {
-      const { ...props } = this.props
-
-      if (isReactComponent) {
-        props.ref = ref => { this.instanceRef = ref }
-      }
-
-      return (
-        <DecoratedComponent {...props} />
-      )
-    }
+    return <DecoratedComponent {...allProps} />
   }
 
   return onRouteChangedHOC(ResourceDetectorComponent, { mounted: true })

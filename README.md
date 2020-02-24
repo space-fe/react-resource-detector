@@ -24,7 +24,8 @@ import routeResourceDetectorHOC from 'react-resource-detector'
 
 class StudentInfo extends React.PureComponent {
   this.resourceConfigurations = {
-    '/class/:classId': {
+    'class/:classId': {
+      // if detect resources in sequence, handler should return a promise.
       handler: (matches, path, location) => {
         // ...detect resource
         /*
@@ -34,7 +35,7 @@ class StudentInfo extends React.PureComponent {
          */
       }
     },
-    '/student/:studentId': {
+    'student/:studentId': {
       handler: (matches, path, location) => {}
     }
   }
@@ -42,10 +43,11 @@ class StudentInfo extends React.PureComponent {
   this.routeConfigurations = {
     '/class/:classId/student/:studentId': {
       handler: (matches, path, location) => {},
+      deselect: (matches, path, prevLocation) => {},
       exact: true,
       shouldDetectResource: true,
-      whiteList: ['/student/:studentId'],
-      blackList: ['/class/:classId']
+      whiteList: ['student/:studentId'],
+      blackList: ['class/:classId']
     },
   }
 
@@ -57,7 +59,9 @@ class StudentInfo extends React.PureComponent {
 }
 
 export default routeResourceDetectorHOC(StudentInfo, {
-  shouldDetectResourceForAllRoutes: false
+  shouldDetectResourceForAllRoutes: false,
+  detectResourceInSequence: true,
+  deselectResources: true
 })
 ```
 
@@ -82,6 +86,8 @@ export default routeResourceDetectorHOC(StudentInfo)
 | Name           | Type      | Default | Description                                                                                                                                                                                                                             |
 | -------------- | --------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `shouldDetectResourceForAllRoutes` | `boolean` | `true` | If `true`, the resources lies in all routes will be detected by default. |
+| `detectResourceInSequence` | `boolean` | `false` | If `true`, the resources will be detected in sequence, it will stop detecting resources when error occurs. See more in example. |
+| `deselectResources` | `boolean` | `false` | If `true`, resource detector will invoke a deselect function provided by current route right before the route changes. See more in example. |
 
 ## Resource Configuration
 - The `resourceConfigurations` is a dictionary of resource detection configurations. The key is a resource pattern, and the value is a resource detection configuration for this resource.
@@ -106,6 +112,7 @@ A route pattern can be either a `string` or a `regexp` object.
 | Name           | Type      | Default | Description                                                                                                                                                                                                                             |
 | -------------- | --------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `handler` | `function` |  | Same as the resource configuration above. |
+| `deselect` | `function` |  | (matches, path, prevLocation) => {}, if `deselectResources` is true, this function will be triggered when there is a matched route of previous location in routeConfigurations before route changes. `matches` is the map of param name and value lies in the pattern, `path` is the exact match result of the pattern, `prevLocation` is the previous location object. |
 | `exact` | `boolean` | `true` | If `true`, the handler function will be triggered when the route completely matches the route pattern. |
 | `shouldDetectResource` | `boolean` | `true` | If `true`, the resources lies in the route will be detected. |
 | `whiteList` | `array` |  | Array of resource patterns. Resources in the whiteList will be detected. |

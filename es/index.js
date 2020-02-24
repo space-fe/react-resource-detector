@@ -1,154 +1,11 @@
-import { createElement, PureComponent } from 'react';
+import _extends from '@babel/runtime/helpers/extends';
+import _regeneratorRuntime from '@babel/runtime/regenerator';
+import _asyncToGenerator from '@babel/runtime/helpers/asyncToGenerator';
+import _slicedToArray from '@babel/runtime/helpers/slicedToArray';
+import { createElement, useEffect as useEffect$1, useRef as useRef$1 } from 'react';
 import onRouteChangedHOC from 'react-onroutechanged';
+import _toArray from '@babel/runtime/helpers/toArray';
 import pathToRegexp from 'path-to-regexp';
-
-function _classCallCheck(instance, Constructor) {
-  if (!(instance instanceof Constructor)) {
-    throw new TypeError("Cannot call a class as a function");
-  }
-}
-
-function _defineProperties(target, props) {
-  for (var i = 0; i < props.length; i++) {
-    var descriptor = props[i];
-    descriptor.enumerable = descriptor.enumerable || false;
-    descriptor.configurable = true;
-    if ("value" in descriptor) descriptor.writable = true;
-    Object.defineProperty(target, descriptor.key, descriptor);
-  }
-}
-
-function _createClass(Constructor, protoProps, staticProps) {
-  if (protoProps) _defineProperties(Constructor.prototype, protoProps);
-  if (staticProps) _defineProperties(Constructor, staticProps);
-  return Constructor;
-}
-
-function _defineProperty(obj, key, value) {
-  if (key in obj) {
-    Object.defineProperty(obj, key, {
-      value: value,
-      enumerable: true,
-      configurable: true,
-      writable: true
-    });
-  } else {
-    obj[key] = value;
-  }
-
-  return obj;
-}
-
-function _extends() {
-  _extends = Object.assign || function (target) {
-    for (var i = 1; i < arguments.length; i++) {
-      var source = arguments[i];
-
-      for (var key in source) {
-        if (Object.prototype.hasOwnProperty.call(source, key)) {
-          target[key] = source[key];
-        }
-      }
-    }
-
-    return target;
-  };
-
-  return _extends.apply(this, arguments);
-}
-
-function _inherits(subClass, superClass) {
-  if (typeof superClass !== "function" && superClass !== null) {
-    throw new TypeError("Super expression must either be null or a function");
-  }
-
-  subClass.prototype = Object.create(superClass && superClass.prototype, {
-    constructor: {
-      value: subClass,
-      writable: true,
-      configurable: true
-    }
-  });
-  if (superClass) _setPrototypeOf(subClass, superClass);
-}
-
-function _getPrototypeOf(o) {
-  _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) {
-    return o.__proto__ || Object.getPrototypeOf(o);
-  };
-  return _getPrototypeOf(o);
-}
-
-function _setPrototypeOf(o, p) {
-  _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
-    o.__proto__ = p;
-    return o;
-  };
-
-  return _setPrototypeOf(o, p);
-}
-
-function _assertThisInitialized(self) {
-  if (self === void 0) {
-    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-  }
-
-  return self;
-}
-
-function _possibleConstructorReturn(self, call) {
-  if (call && (typeof call === "object" || typeof call === "function")) {
-    return call;
-  }
-
-  return _assertThisInitialized(self);
-}
-
-function _slicedToArray(arr, i) {
-  return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest();
-}
-
-function _toArray(arr) {
-  return _arrayWithHoles(arr) || _iterableToArray(arr) || _nonIterableRest();
-}
-
-function _arrayWithHoles(arr) {
-  if (Array.isArray(arr)) return arr;
-}
-
-function _iterableToArray(iter) {
-  if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter);
-}
-
-function _iterableToArrayLimit(arr, i) {
-  var _arr = [];
-  var _n = true;
-  var _d = false;
-  var _e = undefined;
-
-  try {
-    for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
-      _arr.push(_s.value);
-
-      if (i && _arr.length === i) break;
-    }
-  } catch (err) {
-    _d = true;
-    _e = err;
-  } finally {
-    try {
-      if (!_n && _i["return"] != null) _i["return"]();
-    } finally {
-      if (_d) throw _e;
-    }
-  }
-
-  return _arr;
-}
-
-function _nonIterableRest() {
-  throw new TypeError("Invalid attempt to destructure non-iterable instance");
-}
 
 var cache = {};
 var cacheLimit = 10000;
@@ -223,165 +80,334 @@ function matchPath(pathname) {
   }, null);
 }
 
+var configDefaulter = function configDefaulter(value, defaultValue) {
+  return value === undefined ? defaultValue : value;
+};
+
 var noop = function noop() {};
+
+var useEffect = useEffect$1,
+    useRef = useRef$1;
 
 var routeResourceDetectorHOC = function routeResourceDetectorHOC(DecoratedComponent) {
   var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {
-    shouldDetectResourceForAllRoutes: true
+    shouldDetectResourceForAllRoutes: true,
+    detectResourceInSequence: false,
+    deselectResources: false
   };
   var componentName = DecoratedComponent.displayName || DecoratedComponent.name || 'Component';
   var isReactComponent = DecoratedComponent.prototype && DecoratedComponent.prototype.isReactComponent;
+  var shouldDetectResourceForAllRoutes = configDefaulter(config.shouldDetectResourceForAllRoutes, true);
+  var detectResourceInSequence = configDefaulter(config.detectResourceInSequence, false);
+  var deselectResources = configDefaulter(config.deselectResources, false);
   var resourceConfigurations;
   var routeConfigurations;
 
-  var ResourceDetectorComponent =
-  /*#__PURE__*/
-  function (_React$PureComponent) {
-    _inherits(ResourceDetectorComponent, _React$PureComponent);
+  var ResourceDetectorComponent = function ResourceDetectorComponent(props) {
+    var instanceRef = useRef();
 
-    function ResourceDetectorComponent() {
-      var _getPrototypeOf2;
+    var __getResourcesToBeDetected = function __getResourcesToBeDetected() {
+      var whiteList = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+      var blackList = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+      var resourcesToBeDetected = Object.entries(resourceConfigurations).filter(function (_ref) {
+        var _ref2 = _slicedToArray(_ref, 1),
+            pattern = _ref2[0];
 
-      var _this;
-
-      _classCallCheck(this, ResourceDetectorComponent);
-
-      for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-        args[_key] = arguments[_key];
-      }
-
-      _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(ResourceDetectorComponent)).call.apply(_getPrototypeOf2, [this].concat(args)));
-
-      _defineProperty(_assertThisInitialized(_this), "__getResourcesToBeDetected", function () {
-        var whiteList = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
-        var blackList = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
-        var resourcesToBeDetected = Object.entries(resourceConfigurations).filter(function (_ref) {
-          var _ref2 = _slicedToArray(_ref, 1),
-              pattern = _ref2[0];
-
-          return !blackList.includes(pattern);
-        });
-
-        if (whiteList.length) {
-          resourcesToBeDetected = resourcesToBeDetected.filter(function (_ref3) {
-            var _ref4 = _slicedToArray(_ref3, 1),
-                pattern = _ref4[0];
-
-            return whiteList.includes(pattern);
-          });
-        }
-
-        return resourcesToBeDetected;
+        return !blackList.includes(pattern);
       });
 
-      _defineProperty(_assertThisInitialized(_this), "__detectResources", function (currLocation, resources) {
-        resources.forEach(function (_ref5) {
-          var _ref6 = _slicedToArray(_ref5, 2),
-              pattern = _ref6[0],
-              configuration = _ref6[1];
+      if (whiteList.length) {
+        resourcesToBeDetected = resourcesToBeDetected.filter(function (_ref3) {
+          var _ref4 = _slicedToArray(_ref3, 1),
+              pattern = _ref4[0];
 
-          var _configuration$handle = configuration.handler,
-              handler = _configuration$handle === void 0 ? noop : _configuration$handle;
-          var pathname = currLocation.pathname;
+          return whiteList.includes(pattern);
+        });
+      }
+
+      return resourcesToBeDetected;
+    };
+
+    var __detectResources =
+    /*#__PURE__*/
+    function () {
+      var _ref5 = _asyncToGenerator(
+      /*#__PURE__*/
+      _regeneratorRuntime.mark(function _callee(currLocation, resources) {
+        var _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, _step$value, pattern, configuration, _configuration$handle, handler, pathname, match;
+
+        return _regeneratorRuntime.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                _iteratorNormalCompletion = true;
+                _didIteratorError = false;
+                _iteratorError = undefined;
+                _context.prev = 3;
+                _iterator = resources[Symbol.iterator]();
+
+              case 5:
+                if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
+                  _context.next = 21;
+                  break;
+                }
+
+                _step$value = _slicedToArray(_step.value, 2), pattern = _step$value[0], configuration = _step$value[1];
+                _configuration$handle = configuration.handler, handler = _configuration$handle === void 0 ? noop : _configuration$handle;
+                pathname = currLocation.pathname;
+                match = matchPath(pathname, {
+                  path: pattern,
+                  start: false
+                });
+
+                if (match) {
+                  _context.next = 12;
+                  break;
+                }
+
+                return _context.abrupt("continue", 18);
+
+              case 12:
+                if (!detectResourceInSequence) {
+                  _context.next = 17;
+                  break;
+                }
+
+                _context.next = 15;
+                return handler(match.params, match.url, currLocation);
+
+              case 15:
+                _context.next = 18;
+                break;
+
+              case 17:
+                handler(match.params, match.url, currLocation);
+
+              case 18:
+                _iteratorNormalCompletion = true;
+                _context.next = 5;
+                break;
+
+              case 21:
+                _context.next = 27;
+                break;
+
+              case 23:
+                _context.prev = 23;
+                _context.t0 = _context["catch"](3);
+                _didIteratorError = true;
+                _iteratorError = _context.t0;
+
+              case 27:
+                _context.prev = 27;
+                _context.prev = 28;
+
+                if (!_iteratorNormalCompletion && _iterator.return != null) {
+                  _iterator.return();
+                }
+
+              case 30:
+                _context.prev = 30;
+
+                if (!_didIteratorError) {
+                  _context.next = 33;
+                  break;
+                }
+
+                throw _iteratorError;
+
+              case 33:
+                return _context.finish(30);
+
+              case 34:
+                return _context.finish(27);
+
+              case 35:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee, null, [[3, 23, 27, 35], [28,, 30, 34]]);
+      }));
+
+      return function __detectResources(_x, _x2) {
+        return _ref5.apply(this, arguments);
+      };
+    }();
+
+    var __triggerRouteHandlers = function __triggerRouteHandlers(currLocation) {
+      var pathname = currLocation.pathname;
+      var hasMatch = false;
+
+      if (routeConfigurations) {
+        var routeConfigs = Object.entries(routeConfigurations);
+
+        for (var _i = 0, _routeConfigs = routeConfigs; _i < _routeConfigs.length; _i++) {
+          var _routeConfigs$_i = _slicedToArray(_routeConfigs[_i], 2),
+              pattern = _routeConfigs$_i[0],
+              configuration = _routeConfigs$_i[1];
+
+          var _configuration$handle2 = configuration.handler,
+              handler = _configuration$handle2 === void 0 ? noop : _configuration$handle2,
+              _configuration$exact = configuration.exact,
+              exact = _configuration$exact === void 0 ? true : _configuration$exact,
+              _configuration$whiteL = configuration.whiteList,
+              whiteList = _configuration$whiteL === void 0 ? [] : _configuration$whiteL,
+              _configuration$blackL = configuration.blackList,
+              blackList = _configuration$blackL === void 0 ? [] : _configuration$blackL,
+              _configuration$should = configuration.shouldDetectResource,
+              shouldDetectResource = _configuration$should === void 0 ? true : _configuration$should;
           var match = matchPath(pathname, {
             path: pattern,
-            start: false
+            exact: exact
           });
 
-          if (match) {
-            handler(match.params, match.url, currLocation);
+          if (!match) {
+            continue;
           }
-        });
-      });
 
-      _defineProperty(_assertThisInitialized(_this), "__triggerRouteHandlers", function (currLocation) {
-        var pathname = currLocation.pathname;
-        var hasMatch = false;
+          hasMatch = true;
+          handler(match.params, match.url, currLocation);
 
-        if (routeConfigurations) {
-          Object.entries(routeConfigurations).forEach(function (_ref7) {
-            var _ref8 = _slicedToArray(_ref7, 2),
-                pattern = _ref8[0],
-                configuration = _ref8[1];
+          if (!shouldDetectResource) {
+            continue;
+          }
 
-            var _configuration$handle2 = configuration.handler,
-                handler = _configuration$handle2 === void 0 ? noop : _configuration$handle2,
-                _configuration$exact = configuration.exact,
-                exact = _configuration$exact === void 0 ? true : _configuration$exact,
-                _configuration$whiteL = configuration.whiteList,
-                whiteList = _configuration$whiteL === void 0 ? [] : _configuration$whiteL,
-                _configuration$blackL = configuration.blackList,
-                blackList = _configuration$blackL === void 0 ? [] : _configuration$blackL,
-                _configuration$should = configuration.shouldDetectResource,
-                shouldDetectResource = _configuration$should === void 0 ? true : _configuration$should;
-            var match = matchPath(pathname, {
-              path: pattern,
-              exact: exact
-            });
+          var resourcesToBeDetected = __getResourcesToBeDetected(whiteList, blackList);
 
-            if (match) {
-              hasMatch = true;
-              handler(match.params, match.url, currLocation);
+          __detectResources(currLocation, resourcesToBeDetected);
+        }
+      }
 
-              if (shouldDetectResource) {
-                var resourcesToBeDetected = _this.__getResourcesToBeDetected(whiteList, blackList);
+      if (!hasMatch && shouldDetectResourceForAllRoutes) {
+        var _resourcesToBeDetected = __getResourcesToBeDetected();
 
-                _this.__detectResources(currLocation, resourcesToBeDetected);
-              }
+        __detectResources(currLocation, _resourcesToBeDetected);
+      }
+    };
+
+    var __beforeRouteChangedHandler =
+    /*#__PURE__*/
+    function () {
+      var _ref6 = _asyncToGenerator(
+      /*#__PURE__*/
+      _regeneratorRuntime.mark(function _callee2(prevLocation) {
+        var pathname, routeConfigs, _i2, _routeConfigs2, _routeConfigs2$_i, pattern, configuration, _configuration$desele, deselect, _configuration$exact2, exact, match;
+
+        return _regeneratorRuntime.wrap(function _callee2$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                pathname = prevLocation.pathname;
+
+                if (!routeConfigurations) {
+                  _context2.next = 15;
+                  break;
+                }
+
+                routeConfigs = Object.entries(routeConfigurations);
+                _i2 = 0, _routeConfigs2 = routeConfigs;
+
+              case 4:
+                if (!(_i2 < _routeConfigs2.length)) {
+                  _context2.next = 15;
+                  break;
+                }
+
+                _routeConfigs2$_i = _slicedToArray(_routeConfigs2[_i2], 2), pattern = _routeConfigs2$_i[0], configuration = _routeConfigs2$_i[1];
+                _configuration$desele = configuration.deselect, deselect = _configuration$desele === void 0 ? noop : _configuration$desele, _configuration$exact2 = configuration.exact, exact = _configuration$exact2 === void 0 ? true : _configuration$exact2;
+                match = matchPath(pathname, {
+                  path: pattern,
+                  exact: exact
+                });
+
+                if (match) {
+                  _context2.next = 10;
+                  break;
+                }
+
+                return _context2.abrupt("continue", 12);
+
+              case 10:
+                _context2.next = 12;
+                return deselect(match.params, match.url, prevLocation);
+
+              case 12:
+                _i2++;
+                _context2.next = 4;
+                break;
+
+              case 15:
+              case "end":
+                return _context2.stop();
             }
-          });
-        }
+          }
+        }, _callee2);
+      }));
 
-        if (!hasMatch && config.shouldDetectResourceForAllRoutes) {
-          var resourcesToBeDetected = _this.__getResourcesToBeDetected();
+      return function __beforeRouteChangedHandler(_x3) {
+        return _ref6.apply(this, arguments);
+      };
+    }();
 
-          _this.__detectResources(currLocation, resourcesToBeDetected);
-        }
-      });
+    ResourceDetectorComponent.handleRouteChanged =
+    /*#__PURE__*/
+    function () {
+      var _ref7 = _asyncToGenerator(
+      /*#__PURE__*/
+      _regeneratorRuntime.mark(function _callee3(prevLocation, currLocation) {
+        return _regeneratorRuntime.wrap(function _callee3$(_context3) {
+          while (1) {
+            switch (_context3.prev = _context3.next) {
+              case 0:
+                if (!(prevLocation && deselectResources)) {
+                  _context3.next = 3;
+                  break;
+                }
 
-      _defineProperty(_assertThisInitialized(_this), "handleRouteChanged", function (_, currLocation) {
-        _this.__triggerRouteHandlers(currLocation);
-      });
+                _context3.next = 3;
+                return __beforeRouteChangedHandler(prevLocation);
 
-      return _this;
+              case 3:
+                __triggerRouteHandlers(currLocation);
+
+              case 4:
+              case "end":
+                return _context3.stop();
+            }
+          }
+        }, _callee3);
+      }));
+
+      return function (_x4, _x5) {
+        return _ref7.apply(this, arguments);
+      };
+    }();
+
+    useEffect(function () {
+      if (isReactComponent) {
+        resourceConfigurations = instanceRef.current.resourceConfigurations;
+        routeConfigurations = instanceRef.current.routeConfigurations;
+      } else {
+        resourceConfigurations = DecoratedComponent.resourceConfigurations;
+        routeConfigurations = DecoratedComponent.routeConfigurations;
+      }
+
+      if (!resourceConfigurations || !Object.keys(resourceConfigurations).length) {
+        throw new Error("The resourceConfigurations of ".concat(componentName, " must be provided!"));
+      }
+    }, []);
+
+    var allProps = _extends({}, props);
+
+    if (isReactComponent) {
+      allProps.ref = function (ref) {
+        instanceRef.current = ref;
+      };
     }
 
-    _createClass(ResourceDetectorComponent, [{
-      key: "componentDidMount",
-      value: function componentDidMount() {
-        if (isReactComponent) {
-          resourceConfigurations = this.instanceRef.resourceConfigurations;
-          routeConfigurations = this.instanceRef.routeConfigurations;
-        } else {
-          resourceConfigurations = DecoratedComponent.resourceConfigurations;
-          routeConfigurations = DecoratedComponent.routeConfigurations;
-        }
-
-        if (!resourceConfigurations || !Object.keys(resourceConfigurations).length) {
-          throw new Error("The resourceConfigurations of ".concat(componentName, " must be provided!"));
-        }
-      }
-    }, {
-      key: "render",
-      value: function render() {
-        var _this2 = this;
-
-        var props = _extends({}, this.props);
-
-        if (isReactComponent) {
-          props.ref = function (ref) {
-            _this2.instanceRef = ref;
-          };
-        }
-
-        return createElement(DecoratedComponent, props);
-      }
-    }]);
-
-    return ResourceDetectorComponent;
-  }(PureComponent);
-
-  _defineProperty(ResourceDetectorComponent, "displayName", "RouteResourceDetector(".concat(componentName, ")"));
+    return createElement(DecoratedComponent, allProps);
+  };
 
   return onRouteChangedHOC(ResourceDetectorComponent, {
     mounted: true
